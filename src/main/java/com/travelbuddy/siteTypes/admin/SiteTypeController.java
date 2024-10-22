@@ -6,6 +6,7 @@ import com.travelbuddy.siteTypes.exception.SiteTypeExistedException;
 import com.travelbuddy.siteTypes.dto.ExistedResponse;
 import com.travelbuddy.siteTypes.user.SiteTypeEntity;
 import jakarta.validation.*;
+import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,19 +46,36 @@ public class SiteTypeController {
     }
 
     @GetMapping("/api/siteTypes")
-    public ResponseEntity<Object> getSiteTypes() {
-        try {
-            Optional<List<SiteTypeEntity>> allSiteTypes = siteTypeRepository.getAllSiteTypes();
-            if (allSiteTypes.isEmpty()) {
-                return ResponseEntity.ok(new ResponseAllSiteTypes());
-            }
-            // Flattened Optional
-            List<SiteTypeEntity> flattened = allSiteTypes.get();
-            ResponseAllSiteTypes response = new ResponseAllSiteTypes(flattened);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<Object> getSiteTypes(
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) Integer pageNumber
+    ) {
+        // Check for pagination
+        if (limit != null && pageNumber != null) {
+            return getAllSiteTypesPaging(pageNumber, limit);
         }
+        return getAllSiteTypes();
+    }
+
+    public ResponseEntity<Object> getAllSiteTypesPaging(Integer paging, Integer limit) {
+        Optional<List<SiteTypeEntity>> allSiteTypes = siteTypeRepository.getAllSiteTypes(PageRequest.of(paging, limit));
+        if (allSiteTypes.isEmpty()) {
+            return ResponseEntity.ok(new ResponseAllSiteTypes());
+        }
+        // Flattened Optional
+        List<SiteTypeEntity> flattened = allSiteTypes.get();
+        ResponseAllSiteTypes response = new ResponseAllSiteTypes(flattened);
+        return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<Object> getAllSiteTypes() {
+        Optional<List<SiteTypeEntity>> allSiteTypes = siteTypeRepository.getAllSiteTypes();
+        if (allSiteTypes.isEmpty()) {
+            return ResponseEntity.ok(new ResponseAllSiteTypes());
+        }
+        // Flattened Optional
+        List<SiteTypeEntity> flattened = allSiteTypes.get();
+        ResponseAllSiteTypes response = new ResponseAllSiteTypes(flattened);
+        return ResponseEntity.ok(response);
     }
 }

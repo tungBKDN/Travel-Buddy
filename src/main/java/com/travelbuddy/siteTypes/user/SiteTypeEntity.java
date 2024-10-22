@@ -19,6 +19,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 public class SiteTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer ID;
 
     @Column(name = "type_name")
