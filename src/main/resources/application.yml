@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: TravelBuddy
+
+  # PostgreSQL datasource configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/travel-buddy
+    username: postgres
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  # Hibernate configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+
+  data:
+    # Redis configuration
+    redis:
+      host: localhost
+      port: 6379
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
+  flyway:
+    locations: classpath:db/migration,classpath:db/seeding
+    # out-of-order: true
+
+  # Mail configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tiennhat306@gmail.com
+    password: gxmfwjgmgunedqgu
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+# Cloudinary configuration
+upload:
+  cloudinary:
+    url: cloudinary://391937763731862:ltLrIBcRWyusN0JumwtdIuG1MpQ@dvmo7pd7e
+    delete-batch-size: 100
+    temporary-file:
+      delete-interval-ms: 300000
+      max-age-ms: 3600000
+      initial-delay-ms: -1
+
+auth:
+  jwt:
+    secret: e4KqcRb1kov5z+4L9afIDrYWUiSAJYF6MLbTqinypNA=
+    lifespan: 86400000
+    algorithm: HS256
+    verification-duration: 3600000
