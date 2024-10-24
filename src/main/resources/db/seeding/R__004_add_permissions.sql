@@ -14,3 +14,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('permissions_id_seq', (SELECT MAX(id) FROM permissions));

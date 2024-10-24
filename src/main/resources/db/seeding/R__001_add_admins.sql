@@ -9,3 +9,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('admins_id_seq', (SELECT MAX(id) FROM admins));

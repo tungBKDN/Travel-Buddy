@@ -8,3 +8,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('groups_id_seq', (SELECT MAX(id) FROM groups));
