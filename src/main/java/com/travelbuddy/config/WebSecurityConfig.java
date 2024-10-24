@@ -1,6 +1,5 @@
 package com.travelbuddy.config;
 
-import com.travelbuddy.auth.Role;
 import com.travelbuddy.auth.filter.BearerTokenAuthenticationFilter;
 import com.travelbuddy.auth.token.jwt.JWTAuthenticationProvider;
 import com.travelbuddy.auth.token.jwt.JWTProcessor;
@@ -17,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;

@@ -2,7 +2,7 @@ package com.travelbuddy.config;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.travelbuddy.auth.token.jwt.JWTProcessor;
-import com.travelbuddy.auth.token.jwt.JWTProcessorImpl;
+import com.travelbuddy.auth.token.jwt.impl.JWTProcessorImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

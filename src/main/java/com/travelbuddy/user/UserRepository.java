@@ -10,5 +10,9 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     Optional<UserEntity> findByEmailOrUsername(String email, String username);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailOrUsername(String email, String username);
+
+    @Modifying
+    @Query("DELETE FROM UserEntity u WHERE u.enabled = false AND u.createdAt < :thresholdDate")
+    void deleteUnverifiedUsers(LocalDateTime thresholdDate);
 }
