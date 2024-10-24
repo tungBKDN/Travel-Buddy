@@ -54,4 +54,3 @@ auth:
     secret: e4KqcRb1kov5z+4L9afIDrYWUiSAJYF6MLbTqinypNA=
     lifespan: 86400000
     algorithm: HS256
-    verification-duration: 3600000
