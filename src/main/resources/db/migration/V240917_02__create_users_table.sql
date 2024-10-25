@@ -13,3 +13,13 @@ CREATE TABLE IF NOT EXISTS users
     CONSTRAINT pk__users PRIMARY KEY (id),
     CONSTRAINT uq__users__email UNIQUE (email)
 );
+
+-- CREATE TABLE users (
+--                        id SERIAL PRIMARY KEY,
+--                        username VARCHAR NOT NULL,
+--                        email VARCHAR NOT NULL,
+--                        password VARCHAR NOT NULL,
+--                        sign_up_at TIMESTAMP NOT NULL,
+--                        token VARCHAR,
+--                        profile_picture VARCHAR
+-- );
