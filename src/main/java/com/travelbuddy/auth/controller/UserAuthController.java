@@ -9,24 +9,20 @@ import com.travelbuddy.common.exception.errorresponse.ErrorResponse;
 import com.travelbuddy.user.UserService;
 import jakarta.validation.Valid;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class UserAuthController {
     private final UserAuthService userAuthService;
 
     private final UserService userService;
 
     private final TokenStoreService tokenStoreService;
-
-    public UserAuthController(UserAuthService userAuthService, UserService userService, TokenStoreService tokenStoreService) {
-        this.userAuthService = userAuthService;
-        this.userService = userService;
-        this.tokenStoreService = tokenStoreService;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<Object> postLogin(@RequestBody @Valid LoginRqstDto loginRqstDto) {

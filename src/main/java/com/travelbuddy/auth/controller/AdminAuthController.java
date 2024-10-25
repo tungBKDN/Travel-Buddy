@@ -6,6 +6,7 @@ import com.travelbuddy.persistence.domain.dto.auth.LoginRspnDto;
 import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
 import com.travelbuddy.common.exception.errorresponse.ErrorResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,12 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/admin/auth")
+@RequiredArgsConstructor
 public class AdminAuthController {
     private final AdminAuthService adminAuthService;
-
-    public AdminAuthController(AdminAuthService adminAuthService) {
-        this.adminAuthService = adminAuthService;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<Object> postLogin(@RequestBody @Valid LoginRqstDto loginRqstDto) {
