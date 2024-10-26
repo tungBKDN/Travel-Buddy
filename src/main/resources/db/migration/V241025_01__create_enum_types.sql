@@ -1,5 +1,5 @@
 -- Define ENUM types
-CREATE TYPE dual_state AS ENUM ('ATTRACTION', 'UTILITY', 'DUAL');
+CREATE TYPE dual_state AS ENUM ('ATTRACTION', 'AMENITY', 'DUAL');
 CREATE TYPE approval_status AS ENUM ('APPROVED', 'REJECTED');
 CREATE TYPE day_of_week AS ENUM ('MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU');
 CREATE TYPE report_type AS ENUM ('SITE', 'REVIEW');

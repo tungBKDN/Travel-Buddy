@@ -10,7 +10,8 @@ $$
                    (5, 'MANAGE_CATEGORIES'),
                    (6, 'MANAGE_POSTS'),
                    (7, 'MANAGE_COMMENTS'),
-                   (8, 'MANAGE_TAGS');
+                   (8, 'MANAGE_TAGS'),
+                   (9, 'MANAGE_SITE_TYPES');
         END IF;
     END;
 $$;
