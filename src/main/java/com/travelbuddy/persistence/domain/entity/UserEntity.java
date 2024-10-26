@@ -1,4 +1,4 @@
-package com.travelbuddy.user;
+package com.travelbuddy.persistence.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

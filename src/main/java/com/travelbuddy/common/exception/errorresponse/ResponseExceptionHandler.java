@@ -2,6 +2,8 @@ package com.travelbuddy.common.exception.errorresponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
+import com.travelbuddy.common.exception.userinput.InvaidOtpException;
 import com.travelbuddy.common.exception.userinput.UserInputException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,15 +23,39 @@ public class ResponseExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Object> handleNotFoundException(Exception ex) {
+    public ResponseEntity<Object> handleNotFoundException(NotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
                 .withMessage(ex.getMessage())
                 .build());
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(DataAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<Object> handleDataAlreadyExistsException(DataAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse.builder()
+                .withMessage(ex.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler(InvaidOtpException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleBadRequestException(Exception ex) {
+    public ResponseEntity<Object> handleInvaidOtpException(InvaidOtpException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                .withMessage(ex.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler(InvalidLoginCredentialsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleInvalidLoginCredentialsException(InvalidLoginCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                .withMessage(ex.getMessage() != null ? ex.getMessage() : "Email or password is incorrect")
+                .build());
+    }
+
+    @ExceptionHandler(InvaidTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleInvaidTokenException(InvaidTokenException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
                 .withMessage(ex.getMessage())
                 .build());

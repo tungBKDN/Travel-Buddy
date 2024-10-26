@@ -21,12 +21,7 @@ public class AdminAuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> postLogin(@RequestBody @Valid LoginRqstDto loginRqstDto) {
-        try {
-            LoginRspnDto loginRspnDto = adminAuthService.login(loginRqstDto);
-            return ResponseEntity.ok(loginRspnDto);
-        } catch (InvalidLoginCredentialsException e) {
-            return ResponseEntity.badRequest().body(ErrorResponse.builder()
-                    .withMessage("Invalid email or password").build());
-        }
+        LoginRspnDto loginRspnDto = adminAuthService.login(loginRqstDto);
+        return ResponseEntity.ok(loginRspnDto);
     }
 }

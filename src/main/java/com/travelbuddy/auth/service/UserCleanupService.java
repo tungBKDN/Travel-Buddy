@@ -1,6 +1,6 @@
 package com.travelbuddy.auth.service;
 
-import com.travelbuddy.user.UserRepository;
+import com.travelbuddy.persistence.repository.UserRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

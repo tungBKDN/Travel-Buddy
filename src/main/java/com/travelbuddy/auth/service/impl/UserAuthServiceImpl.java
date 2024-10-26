@@ -1,8 +1,10 @@
 package com.travelbuddy.auth.service.impl;
 
-import com.travelbuddy.common.constants.Role;
+import com.travelbuddy.common.constants.RoleEnum;
 import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
 import com.travelbuddy.auth.token.jwt.JWTProcessor;
+import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.common.exception.userinput.InvaidOtpException;
 import com.travelbuddy.persistence.domain.dto.auth.*;
 import com.travelbuddy.persistence.domain.entity.TokenStoreEntity;
 import com.travelbuddy.persistence.repository.TokenStoreRepository;
@@ -10,8 +12,8 @@ import com.travelbuddy.mapper.UserMapper;
 import com.travelbuddy.auth.service.UserAuthEmailService;
 import com.travelbuddy.auth.service.UserAuthRedisService;
 import com.travelbuddy.auth.service.UserAuthService;
-import com.travelbuddy.user.UserEntity;
-import com.travelbuddy.user.UserRepository;
+import com.travelbuddy.persistence.domain.entity.UserEntity;
+import com.travelbuddy.persistence.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,12 +57,12 @@ public class UserAuthServiceImpl implements UserAuthService {
 
         String accessToken = jwtProcessor.getBuilder()
                 .withSubject(user.getEmail())
-                .withScopes(List.of("ROLE_"+ Role.USER.name()))
+                .withScopes(List.of("ROLE_"+ RoleEnum.USER.name()))
                 .build();
 
         String refreshToken = jwtProcessor.getBuilder(true)
                 .withSubject(user.getEmail())
-                .withScopes(List.of("ROLE_"+ Role.USER.name()))
+                .withScopes(List.of("ROLE_"+ RoleEnum.USER.name()))
                 .build();
 
         tokenStoreRepository.save(TokenStoreEntity.builder()
@@ -99,19 +101,19 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void confirmRegistration(VerificationOtpRqstDto verificationOtpRqstDto) {
         UserEntity user = userRepository.findByEmailOrUsername(verificationOtpRqstDto.getEmail(), verificationOtpRqstDto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Long attempts = userAuthRedisService.increment("otp_attempts:" + user.getId(), 1);
 
         if (attempts > 3) {
             userAuthRedisService.delete("otp_attempts:" + user.getId());
             userAuthRedisService.delete("otp:" + user.getId());
-            throw new RuntimeException("Too many attempts");
+            throw new InvaidOtpException("Too many attempts");
         }
 
         String otp = userAuthRedisService.get("otp:" + user.getId());
         if (!otp.equals(verificationOtpRqstDto.getOtp())) {
-            throw new RuntimeException("Invalid OTP");
+            throw new InvaidOtpException("Invalid OTP");
         }
 
         userAuthRedisService.delete("otp_attempts:" + user.getId());
@@ -124,7 +126,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void resetPassword(ResetPasswordRqstDto resetPasswordRqstDto) {
         UserEntity user = userRepository.findByEmailOrUsername(resetPasswordRqstDto.getEmail(), resetPasswordRqstDto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         String otp = generateOtp();
         userAuthRedisService.save("otp_rs_pw:" + user.getId(), otp, 15, TimeUnit.MINUTES);
@@ -141,19 +143,19 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void confirmNewPassword(ConfirmNewPasswordRqstDto confirmNewPasswordTokenDto) {
         UserEntity user = userRepository.findByEmailOrUsername(confirmNewPasswordTokenDto.getEmail(), confirmNewPasswordTokenDto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Long attempts = userAuthRedisService.increment("otp_rs_pw_attempts:" + user.getId(), 1);
 
         if (attempts > 3) {
             userAuthRedisService.delete("otp_rs_pw_attempts:" + user.getId());
             userAuthRedisService.delete("otp_rs_pw:" + user.getId());
-            throw new RuntimeException("Too many attempts");
+            throw new InvaidOtpException("Too many attempts");
         }
 
         String otp = userAuthRedisService.get("otp_rs_pw:" + user.getId());
         if (!otp.equals(confirmNewPasswordTokenDto.getOtp())) {
-            throw new RuntimeException("Invalid OTP");
+            throw new InvaidOtpException("Invalid OTP");
         }
 
         userAuthRedisService.delete("otp_rs_pw_attempts:" + user.getId());
@@ -167,7 +169,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public BasicInfoDto getUserBasicInfo(String emailOrUsername) {
         UserEntity user = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         return userMapper.toBasicInfoDto(user);
     }
@@ -175,8 +177,8 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public String refreshToken(int userId) {
         return jwtProcessor.getBuilder()
-                .withSubject(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")).getEmail())
-                .withScopes(List.of("ROLE_"+ Role.USER.name()))
+                .withSubject(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found")).getEmail())
+                .withScopes(List.of("ROLE_"+ RoleEnum.USER.name()))
                 .build();
     }
 

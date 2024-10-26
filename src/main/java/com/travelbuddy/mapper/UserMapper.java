@@ -1,7 +1,7 @@
 package com.travelbuddy.mapper;
 
 import com.travelbuddy.persistence.domain.dto.auth.BasicInfoDto;
-import com.travelbuddy.user.UserEntity;
+import com.travelbuddy.persistence.domain.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
