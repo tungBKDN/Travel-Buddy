@@ -1,4 +1,4 @@
-package com.travelbuddy.openingTime.user;
+package com.travelbuddy.openningtime.user;
 
 import com.travelbuddy.persistence.domain.dto.site.OpeningTimeCreateRqstDto;
 

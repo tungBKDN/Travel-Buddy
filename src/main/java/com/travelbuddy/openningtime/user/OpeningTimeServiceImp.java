@@ -1,4 +1,4 @@
-package com.travelbuddy.openingTime.user;
+package com.travelbuddy.openningtime.user;
 
 import com.travelbuddy.common.constants.DayOfWeekEnum;
 import com.travelbuddy.common.exception.errorresponse.BadTimingInputException;

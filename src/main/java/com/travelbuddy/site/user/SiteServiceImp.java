@@ -1,9 +1,10 @@
 package com.travelbuddy.site.user;
 
-import com.travelbuddy.openingTime.user.OpeningTimeService;
+import com.travelbuddy.openningtime.user.OpeningTimeService;
 import com.travelbuddy.persistence.domain.entity.SiteEntity;
 import com.travelbuddy.persistence.repository.SiteRepository;
 import com.travelbuddy.phonenumber.user.PhoneNumberService;
+import com.travelbuddy.siteapproval.admin.SiteApprovalService;
 import com.travelbuddy.siteversion.user.SiteVersionService;
 import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
 import jakarta.transaction.Transactional;
@@ -17,6 +18,7 @@ public class SiteServiceImp implements SiteService {
     private final SiteVersionService siteVersionService;
     private final PhoneNumberService phoneNumberService;
     private final OpeningTimeService openingTimeService;
+    private final SiteApprovalService siteApprovalService;
 
     @Override
     @Transactional
@@ -41,6 +43,9 @@ public class SiteServiceImp implements SiteService {
 
         // 4. Save opening hours into database
         openingTimeService.addOpeningTimes(siteCreateRqstDto.getOpeningTimes(), siteVersionID);
+
+        // 5. Add default site approval record
+        siteApprovalService.createDefaultSiteApproval(siteVersionID);
         return siteId;
     }
 }
