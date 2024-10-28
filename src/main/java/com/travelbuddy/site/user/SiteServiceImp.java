@@ -1,5 +1,6 @@
 package com.travelbuddy.site.user;
 
+import com.travelbuddy.openingTime.user.OpeningTimeService;
 import com.travelbuddy.persistence.domain.entity.SiteEntity;
 import com.travelbuddy.persistence.repository.SiteRepository;
 import com.travelbuddy.phonenumber.user.PhoneNumberService;
@@ -15,6 +16,7 @@ public class SiteServiceImp implements SiteService {
     private final SiteRepository siteRepository;
     private final SiteVersionService siteVersionService;
     private final PhoneNumberService phoneNumberService;
+    private final OpeningTimeService openingTimeService;
 
     @Override
     @Transactional
@@ -36,6 +38,9 @@ public class SiteServiceImp implements SiteService {
 
         // 3. Save phone numbers into database
         phoneNumberService.addPhoneNumbers(siteCreateRqstDto.getPhoneNumbers(), siteVersionID);
+
+        // 4. Save opening hours into database
+        openingTimeService.addOpeningTimes(siteCreateRqstDto.getOpeningTimes(), siteVersionID);
         return siteId;
     }
 }
