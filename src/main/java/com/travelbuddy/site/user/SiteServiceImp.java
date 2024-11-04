@@ -2,8 +2,10 @@ package com.travelbuddy.site.user;
 
 import com.travelbuddy.openningtime.user.OpeningTimeService;
 import com.travelbuddy.persistence.domain.entity.SiteEntity;
+import com.travelbuddy.persistence.repository.ServicesBySiteVersionRepository;
 import com.travelbuddy.persistence.repository.SiteRepository;
 import com.travelbuddy.phonenumber.user.PhoneNumberService;
+import com.travelbuddy.servicesbysiteversion.admin.ServicesBySiteVersionService;
 import com.travelbuddy.siteapproval.admin.SiteApprovalService;
 import com.travelbuddy.siteversion.user.SiteVersionService;
 import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
@@ -19,6 +21,7 @@ public class SiteServiceImp implements SiteService {
     private final PhoneNumberService phoneNumberService;
     private final OpeningTimeService openingTimeService;
     private final SiteApprovalService siteApprovalService;
+    private final ServicesBySiteVersionService servicesBySiteVersionService;
 
     @Override
     @Transactional
@@ -46,6 +49,10 @@ public class SiteServiceImp implements SiteService {
 
         // 5. Add default site approval record
         siteApprovalService.createDefaultSiteApproval(siteVersionID);
+
+        // 6. Save services into database
+        if (siteCreateRqstDto.getServices() != null)
+            servicesBySiteVersionService.createServicesBySiteVersion(siteVersionID, siteCreateRqstDto.getServices());
         return siteId;
     }
 }

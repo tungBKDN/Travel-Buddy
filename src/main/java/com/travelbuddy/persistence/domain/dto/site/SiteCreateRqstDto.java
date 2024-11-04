@@ -17,4 +17,5 @@ public class SiteCreateRqstDto {
     private Integer typeId;
     private List<String> phoneNumbers;
     private List<OpeningTimeCreateRqstDto> openingTimes;
+    private List<Integer> services;
 }
