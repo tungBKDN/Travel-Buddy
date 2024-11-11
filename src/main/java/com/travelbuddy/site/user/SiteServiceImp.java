@@ -1,11 +1,16 @@
 package com.travelbuddy.site.user;
 
+import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.openningtime.user.OpeningTimeService;
+import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
+import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
+import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
 import com.travelbuddy.persistence.domain.entity.SiteEntity;
-import com.travelbuddy.persistence.repository.ServicesBySiteVersionRepository;
-import com.travelbuddy.persistence.repository.SiteRepository;
+import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
+import com.travelbuddy.persistence.domain.entity.UserEntity;
+import com.travelbuddy.persistence.repository.*;
 import com.travelbuddy.phonenumber.user.PhoneNumberService;
-import com.travelbuddy.servicesbysiteversion.admin.ServicesBySiteVersionService;
+import com.travelbuddy.service.admin.ServiceService;
 import com.travelbuddy.siteapproval.admin.SiteApprovalService;
 import com.travelbuddy.siteversion.user.SiteVersionService;
 import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
@@ -13,15 +18,22 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class SiteServiceImp implements SiteService {
     private final SiteRepository siteRepository;
+    private final UserRepository userRepository;
+    private final SiteApprovalRepository siteApprovalRepository;
+    private final SiteVersionRepository siteVersionRepository;
+
     private final SiteVersionService siteVersionService;
     private final PhoneNumberService phoneNumberService;
     private final OpeningTimeService openingTimeService;
     private final SiteApprovalService siteApprovalService;
-    private final ServicesBySiteVersionService servicesBySiteVersionService;
+    private final ServiceService serviceService;
 
     @Override
     @Transactional
@@ -52,7 +64,9 @@ public class SiteServiceImp implements SiteService {
 
         // 6. Save services into database
         if (siteCreateRqstDto.getServices() != null)
-            servicesBySiteVersionService.createServicesBySiteVersion(siteVersionID, siteCreateRqstDto.getServices());
+            serviceService.createServicesBySiteVersion(siteVersionID, siteCreateRqstDto.getServices());
         return siteId;
     }
+
+
 }

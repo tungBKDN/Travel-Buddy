@@ -19,4 +19,9 @@ public class ServicesBySiteVersionEntity {
 
     @Column(name = "service_id")
     private Integer serviceId;
+
+    // Easy joins
+    @ManyToOne
+    @JoinColumn(name = "service_id", insertable = false, updatable = false)
+    private ServiceEntity serviceEntity;
 }

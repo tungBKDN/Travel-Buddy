@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Modifying
     @Query("DELETE FROM UserEntity u WHERE u.enabled = false AND u.createdAt < :thresholdDate")
     void deleteUnverifiedUsers(LocalDateTime thresholdDate);
+    Optional<UserEntity> findById(Integer id);
 }
