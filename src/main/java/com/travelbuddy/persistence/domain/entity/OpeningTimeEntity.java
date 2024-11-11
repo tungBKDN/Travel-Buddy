@@ -19,7 +19,7 @@ public class OpeningTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "site_version_id", insertable = false, updatable = false)
+    @Column(name = "site_version_id")
     private Integer siteVersionId;
 
     @Column(name = "day_of_week")
@@ -32,8 +32,4 @@ public class OpeningTimeEntity {
 
     @Column(name = "close_time")
     private LocalTime closeTime;
-
-    @ManyToOne
-    @JoinColumn(name = "site_version_id")
-    private SiteVersionEntity siteVersion;
 }

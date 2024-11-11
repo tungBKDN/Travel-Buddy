@@ -1,21 +1,24 @@
 package com.travelbuddy.siteversion.user;
 
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
-import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
-import com.travelbuddy.persistence.domain.entity.UserEntity;
-import com.travelbuddy.persistence.repository.SiteRepository;
-import com.travelbuddy.persistence.repository.SiteVersionRepository;
+import com.travelbuddy.persistence.domain.entity.*;
+import com.travelbuddy.persistence.repository.*;
 import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
-import com.travelbuddy.persistence.repository.UserRepository;
 import com.travelbuddy.service.admin.ServiceService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.travelbuddy.common.constants.GeographicLimitConstants;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.travelbuddy.common.constants.GeographicLimitConstants.MAX_DEG_RADIUS;
+import static com.travelbuddy.common.constants.GeographicLimitConstants.MIN_DEG_RADIUS;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,9 @@ public class SiteVersionServiceImp implements SiteVersionService {
     private final SiteRepository siteRepository;
     private final UserRepository userRepository;
     private final ServiceService serviceService;
+    private final PhoneNumberRepository phoneNumberRepository;
+    private final OpeningTimeRepository openingTimeRepository;
+    private final SiteTypeRepository siteTypeRepository;
 
     @Override
     @Transactional
@@ -49,6 +55,13 @@ public class SiteVersionServiceImp implements SiteVersionService {
         SiteVersionEntity siteVersionInfos = siteVersionRepository.findById(siteVersionId)
                 .orElseThrow(() -> new NotFoundException("Site version not found"));
 
+        // 1'. Get phone numbers
+        List<String> phoneNumbers = phoneNumberRepository.findAllBySiteVersionId(siteVersionId)
+                .orElseThrow(() -> new NotFoundException("Phone numbers not found"))
+                .stream()
+                .map(PhoneNumberEntity::getPhoneNumber)
+                .toList();        // 1''. Get opening times
+        List<OpeningTimeEntity> openingTimes = openingTimeRepository.findAllBySiteVersionId(siteVersionId).orElseThrow(() -> new NotFoundException("Opening times not found"));
         // 2. Get user basic information
         Integer userId = siteRepository.findById(siteVersionInfos.getSiteId())
                 .orElseThrow(() -> new NotFoundException("Site not found"))
@@ -59,7 +72,27 @@ public class SiteVersionServiceImp implements SiteVersionService {
 
         // 3. Get support services
         List<GroupedSiteServicesRspnDto> groupedServices = serviceService.getGroupedSiteServices(siteVersionId);
-        resndBody.mapView(siteVersionInfos, userInfo, groupedServices);
+        resndBody.mapView(siteVersionInfos, userInfo, groupedServices, phoneNumbers, openingTimes);
         return resndBody;
+    }
+
+    @Override
+    public List<MapRepresentationDto> getSitesInRange(double lat, double lng, double degRadius) {
+        /*
+            This function is to return Map representation of sites in the given range.
+        */
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180 || degRadius < MIN_DEG_RADIUS || degRadius > MAX_DEG_RADIUS) {
+            throw new IllegalArgumentException("Invalid latitude or longitude");
+        }
+        List<MapRepresentationDto> sitesInRange = new ArrayList<>();
+        // Get latest siteVersions, and approved, group by siteId
+        List<SiteVersionEntity> siteVersions = siteVersionRepository.findApprovedSiteVersionsInRange(lat, lng, degRadius);
+        for (SiteVersionEntity siteVersion : siteVersions) {
+            SiteTypeEntity siteType = siteTypeRepository.findById(siteVersion.getTypeId())
+                    .orElseThrow(() -> new NotFoundException("Site type not found"));
+            MapRepresentationDto mapRepresentationDto = new MapRepresentationDto(siteVersion.getId(), siteType, siteVersion.getSiteName(), siteVersion.getLat(), siteVersion.getLng());
+            sitesInRange.add(mapRepresentationDto);
+        }
+        return sitesInRange;
     }
 }

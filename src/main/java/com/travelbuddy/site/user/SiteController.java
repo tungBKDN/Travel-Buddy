@@ -1,6 +1,7 @@
 package com.travelbuddy.site.user;
 
 import com.travelbuddy.common.constants.ApprovalStatusEnum;
+import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
 import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
 import com.travelbuddy.persistence.repository.SiteApprovalRepository;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -42,5 +44,12 @@ public class SiteController {
         Integer siteVersionId = latestApprovedVersionId.get().getSiteVersionId();
         SiteRepresentationDto representationDto = siteVersionService.getSiteVersionView(siteVersionId);
         return ResponseEntity.ok(representationDto);
+    }
+
+    @GetMapping("/@")
+    public ResponseEntity<Object> getSiteByLocation(@RequestParam double lat, @RequestParam double lng, @RequestParam int degRadius) {
+        // Your logic to handle the request using lat and lon
+        List<MapRepresentationDto> sitesInRange = siteVersionService.getSitesInRange(lat, lng, degRadius);
+        return ResponseEntity.ok(sitesInRange);
     }
 }

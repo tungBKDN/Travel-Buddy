@@ -1,5 +1,6 @@
 package com.travelbuddy.sitetype.admin;
 
+import com.travelbuddy.common.exception.errorresponse.EnumNotFitException;
 import com.travelbuddy.common.mapper.PageMapper;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.mapper.SiteTypeMapper;
@@ -25,6 +26,13 @@ public class SiteTypeServiceImp implements SiteTypeService {
 
     @Override
     public Integer createSiteType(SiteTypeCreateRqstDto siteTypeCreateRqstDto) {
+        DualStateEnum dualState;
+        try {
+            dualState = DualStateEnum.valueOf(siteTypeCreateRqstDto.getMode());
+        } catch (IllegalArgumentException e) {
+            throw new EnumNotFitException("Invalid mode: " + siteTypeCreateRqstDto.getMode());
+        }
+
         SiteTypeEntity siteType = SiteTypeEntity.builder()
                 .typeName(siteTypeCreateRqstDto.getSiteTypeName())
                 .dualState(DualStateEnum.valueOf(siteTypeCreateRqstDto.getMode()))

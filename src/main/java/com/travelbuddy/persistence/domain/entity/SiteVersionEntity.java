@@ -42,10 +42,4 @@ public class SiteVersionEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_id", insertable = false, updatable = false)
     private SiteTypeEntity siteType;
-
-    @OneToMany(mappedBy = "siteVersion", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhoneNumberEntity> phoneNumbers;
-
-    @OneToMany(mappedBy = "siteVersion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<OpeningTimeEntity> openingTimes;
 }

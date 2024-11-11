@@ -120,4 +120,20 @@ public class ResponseExceptionHandler {
                 .withMessage(ex.getMessage())
                 .build());
     }
+
+    @ExceptionHandler(EnumNotFitException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleEnumNotFitException(EnumNotFitException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                .withMessage(ex.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                .withMessage(ex.getMessage())
+                .build());
+    }
 }

@@ -15,13 +15,9 @@ public class PhoneNumberEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "site_versions_id", insertable = false, updatable = false)
+    @Column(name = "site_versions_id")
     private Integer siteVersionId;
 
     @Column(name = "phone_number")
     private String phoneNumber;
-
-    @ManyToOne
-    @JoinColumn(name = "site_versions_id")
-    private SiteVersionEntity siteVersion;
 }

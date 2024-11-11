@@ -37,6 +37,7 @@ public class ServiceServiceImp implements ServiceService {
         if (serviceRepository.existsByServiceNameIgnoreCase(serviceCreateRqstDto.getServiceName()))
             throw new DataAlreadyExistsException("Service already exists");
         ServiceEntity service = ServiceEntity.builder().serviceName(serviceCreateRqstDto.getServiceName()).build();
+        serviceRepository.save(service);
     }
 
     @Override

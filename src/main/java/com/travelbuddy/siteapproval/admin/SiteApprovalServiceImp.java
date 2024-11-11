@@ -1,6 +1,7 @@
 package com.travelbuddy.siteapproval.admin;
 
 import com.travelbuddy.common.constants.ApprovalStatusEnum;
+import com.travelbuddy.common.exception.errorresponse.EnumNotFitException;
 import com.travelbuddy.persistence.domain.dto.siteapproval.UpdateSiteApprovalRqstDto;
 import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
 import com.travelbuddy.persistence.repository.SiteApprovalRepository;
@@ -35,6 +36,12 @@ public class SiteApprovalServiceImp implements SiteApprovalService {
         * This function updates the site approval record when admin approves or rejects a site
         * with adminId get from the JWTToken
         */
+        try {
+            ApprovalStatusEnum.valueOf(updateSiteApprovalRqstDto.getStatus());
+        } catch (IllegalArgumentException e) {
+            throw new EnumNotFitException("Invalid status: " + updateSiteApprovalRqstDto.getStatus());
+        }
+
         SiteApprovalEntity siteApprovalEntity = siteApprovalRepository.findById(updateSiteApprovalRqstDto.getId()).orElseThrow(() -> new RuntimeException("Site approval not found"));
         siteApprovalEntity.setStatus(ApprovalStatusEnum.valueOf(updateSiteApprovalRqstDto.getStatus()));
         siteApprovalEntity.setAdminId(adminId);

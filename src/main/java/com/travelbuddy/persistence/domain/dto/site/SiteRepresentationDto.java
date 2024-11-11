@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
-import com.travelbuddy.persistence.domain.entity.PhoneNumberEntity;
-import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
-import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
-import com.travelbuddy.persistence.domain.entity.UserEntity;
+import com.travelbuddy.persistence.domain.entity.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,20 +52,9 @@ public class SiteRepresentationDto implements Serializable {
         this.website = siteVersion.getWebsite();
         this.createdAt = siteVersion.getCreatedAt().toString();
 
-        Hibernate.initialize(siteVersion.getOpeningTimes());
         // Mapping the siteType
         this.siteType = new SiteTypeRspnDto();
         this.siteType.mapFromSiteTypeEntity(siteVersion.getSiteType());
-
-        Hibernate.initialize(siteVersion.getOpeningTimes());
-        this.openingTimes = siteVersion.getOpeningTimes().stream()
-                .map(OpeningTimeRepresentationDto::new)
-                .toList();
-
-        Hibernate.initialize(siteVersion.getPhoneNumbers());
-        this.phoneNumbers = siteVersion.getPhoneNumbers().stream()
-                .map(PhoneNumberEntity::getPhoneNumber)
-                .toList();
     }
 
     public void mapUser(UserEntity userEntity) {
@@ -77,9 +63,13 @@ public class SiteRepresentationDto implements Serializable {
         this.ownerProfilePicture = null;
     }
 
-    public void mapView(SiteVersionEntity siteVersion, UserEntity userEntity, List<GroupedSiteServicesRspnDto> services) {
+    public void mapView(SiteVersionEntity siteVersion, UserEntity userEntity, List<GroupedSiteServicesRspnDto> services, List<String> phoneNumbers, List<OpeningTimeEntity> openingTimes) {
         mapSiteVersion(siteVersion);
         mapUser(userEntity);
         this.groupedServices = services;
+        this.phoneNumbers = phoneNumbers;
+        this.openingTimes = openingTimes.stream()
+                .map(OpeningTimeRepresentationDto::new)
+                .toList();
     }
 }

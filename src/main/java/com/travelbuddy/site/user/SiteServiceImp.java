@@ -2,6 +2,7 @@ package com.travelbuddy.site.user;
 
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.openningtime.user.OpeningTimeService;
+import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
@@ -18,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +69,4 @@ public class SiteServiceImp implements SiteService {
             serviceService.createServicesBySiteVersion(siteVersionID, siteCreateRqstDto.getServices());
         return siteId;
     }
-
-
 }
