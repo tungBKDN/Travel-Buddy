@@ -1,0 +1,11 @@
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM service_groups_by_types) THEN
+            INSERT INTO service_groups_by_types (id, type_id, service_group_id)
+            VALUES (1, 1, 1),
+                   (2, 1, 2),
+                   (3, 1, 3);
+        END IF;
+    END;
+$$;

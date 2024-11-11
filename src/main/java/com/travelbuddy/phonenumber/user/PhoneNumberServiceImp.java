@@ -26,10 +26,10 @@ public class PhoneNumberServiceImp implements PhoneNumberService {
     public void addPhoneNumbers(List<String> phoneNumbers, Integer siteVersionId) {
         List<PhoneNumberEntity> phoneNumberEntities = new ArrayList<>();
         for (String phoneNumber : phoneNumbers) {
-            phoneNumberEntities.add(PhoneNumberEntity.builder()
-                    .phoneNumber(phoneNumber)
-                    .siteVersionId(siteVersionId)
-                    .build());
+            PhoneNumberEntity p = new PhoneNumberEntity();
+            p.setPhoneNumber(phoneNumber);
+            p.setSiteVersionId(siteVersionId);
+            phoneNumberEntities.add(p);
         }
         phoneNumberRepository.saveAll(phoneNumberEntities);
     }

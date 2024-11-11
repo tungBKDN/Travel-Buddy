@@ -16,4 +16,6 @@ public class SiteCreateRqstDto {
     private String website;
     private Integer typeId;
     private List<String> phoneNumbers;
+    private List<OpeningTimeCreateRqstDto> openingTimes;
+    private List<Integer> services;
 }

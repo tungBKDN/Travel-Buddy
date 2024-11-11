@@ -14,4 +14,6 @@ public interface SiteTypeRepository extends JpaRepository<SiteTypeEntity, Intege
     Page<SiteTypeEntity> searchSiteTypeEntitiesByTypeNameContainingIgnoreCase(String typeName, Pageable pageable);
 
     Optional<Integer> findIdByTypeNameIgnoreCase(String typeName);
+
+
 }

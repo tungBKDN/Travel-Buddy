@@ -3,6 +3,7 @@ package com.travelbuddy.persistence.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -37,4 +38,8 @@ public class SiteVersionEntity {
 
     @Column(name = "type_id")
     private Integer typeId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "type_id", insertable = false, updatable = false)
+    private SiteTypeEntity siteType;
 }
