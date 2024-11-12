@@ -28,5 +28,4 @@ public interface SiteVersionRepository extends JpaRepository<SiteVersionEntity, 
     List<SiteVersionEntity> findApprovedSiteVersionsInRange(@Param("lat") double lat,
                                                             @Param("lng") double lng,
                                                             @Param("degRadius") double degRadius);
-
 }
