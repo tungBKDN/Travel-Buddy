@@ -3,6 +3,7 @@ package com.travelbuddy.sitetype.user;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.ServiceByTypeRspnDto;
+import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
 import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
 import com.travelbuddy.persistence.repository.SiteTypeRepository;
 import com.travelbuddy.service.admin.ServiceService;
@@ -29,7 +30,9 @@ public class SiteTypeController {
                 .orElseThrow(() -> new NotFoundException("Site type not found"));
         List<GroupedSiteServicesRspnDto> groupedSiteServices = siteTypeService.getAssociatedServiceGroups(siteTypeId);
         ServiceByTypeRspnDto servicesByTypeRspnDto = new ServiceByTypeRspnDto();
-        servicesByTypeRspnDto.setSiteType(siteType);
+        SiteTypeRspnDto siteTypeRspnDto = new SiteTypeRspnDto();
+        siteTypeRspnDto.mapFromSiteTypeEntity(siteType);
+        servicesByTypeRspnDto.setSiteType(siteTypeRspnDto);
         servicesByTypeRspnDto.setGroupedSiteServices(groupedSiteServices);
         return ResponseEntity.ok(servicesByTypeRspnDto);
     }
