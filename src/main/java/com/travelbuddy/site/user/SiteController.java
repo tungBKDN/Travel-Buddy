@@ -34,14 +34,14 @@ public class SiteController {
     @GetMapping("/{siteId}")
     public ResponseEntity<Object> getValidSiteRepresention(@PathVariable int siteId) {
         /* This API returns the representation of siteID, publicly */
-        Optional<SiteApprovalEntity> latestApprovedVersionId = siteApprovalRepository.findTopBySiteVersionIdAndStatusOrderByApprovedAtDesc(siteId, ApprovalStatusEnum.APPROVED);
+        Optional<Integer> latestApprovedVersionId = siteApprovalRepository.findLatestApprovedSiteVersionIdBySiteId(siteId);
         if (latestApprovedVersionId.isEmpty()) {
             // If there is no approved version, return 404
             return ResponseEntity.notFound().build();
         }
 
         // Success block
-        Integer siteVersionId = latestApprovedVersionId.get().getSiteVersionId();
+        Integer siteVersionId = latestApprovedVersionId.get();
         SiteRepresentationDto representationDto = siteVersionService.getSiteVersionView(siteVersionId);
         return ResponseEntity.ok(representationDto);
     }
