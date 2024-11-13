@@ -4,7 +4,6 @@ import com.travelbuddy.common.constants.ApprovalStatusEnum;
 import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteUpdateRqstDto;
-import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
 import com.travelbuddy.persistence.domain.entity.SiteEntity;
 import com.travelbuddy.persistence.repository.SiteApprovalRepository;
 import com.travelbuddy.persistence.repository.SiteRepository;
@@ -12,7 +11,6 @@ import com.travelbuddy.siteversion.user.SiteVersionService;
 import com.travelbuddy.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -84,5 +82,21 @@ public class SiteController {
         response.put("createdURL", "api/sites/version=" + newSiteVersionId.toString());
         // Return the URI of the new site version, owner can be redirected to the new version
         return ResponseEntity.created(URI.create("/api/sites/version=" + newSiteVersionId)).body(response);
+    }
+
+    @GetMapping("/version={siteVersionId}")
+    public ResponseEntity<Object> getSiteVersion(@PathVariable int siteVersionId) {
+        // 1. Get the site representation
+        SiteRepresentationDto siteRepresentationDto = siteVersionService.getSiteVersionView(siteVersionId);
+
+        // 2. Check for the owner permission
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer userId = userService.getUserIdByEmailOrUsername(username);
+        Integer ownerId = siteRepresentationDto.getOwnerId();
+        if (!userId.equals(ownerId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(siteRepresentationDto);
     }
 }
