@@ -3,18 +3,25 @@ package com.travelbuddy.site.user;
 import com.travelbuddy.common.constants.ApprovalStatusEnum;
 import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
+import com.travelbuddy.persistence.domain.dto.site.SiteUpdateRqstDto;
 import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
+import com.travelbuddy.persistence.domain.entity.SiteEntity;
 import com.travelbuddy.persistence.repository.SiteApprovalRepository;
+import com.travelbuddy.persistence.repository.SiteRepository;
 import com.travelbuddy.siteversion.user.SiteVersionService;
+import com.travelbuddy.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +31,8 @@ public class SiteController {
     private final SiteService siteService;
     private final SiteApprovalRepository siteApprovalRepository;
     private final SiteVersionService siteVersionService;
+    private final SiteRepository siteRepository;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<Object> postSite(@RequestBody @Valid SiteCreateRqstDto siteCreateRqstDto) {
@@ -51,5 +60,29 @@ public class SiteController {
         // Your logic to handle the request using lat and lon
         List<MapRepresentationDto> sitesInRange = siteVersionService.getSitesInRange(lat, lng, degRadius);
         return ResponseEntity.ok(sitesInRange);
+    }
+
+    @PutMapping
+    public ResponseEntity<Object> updateSite(@RequestBody @Valid SiteUpdateRqstDto siteUpdateRqstDto) {
+        // 1. Check if the site exists, if not return 404
+        Integer siteID = siteRepository.findById(siteUpdateRqstDto.getSiteId()).map(SiteEntity::getId).orElse(null);
+        if (siteID == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 2. Chek if the cookie username/id is the ownerId
+        Integer ownerId = siteRepository.findById(siteUpdateRqstDto.getSiteId()).map(SiteEntity::getOwnerId).orElse(null);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer userId = userService.getUserIdByEmailOrUsername(username);
+        if (!userId.equals(ownerId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        // 3. Update the site
+        Integer newSiteVersionId = siteService.updateSite(siteUpdateRqstDto);
+        Map<String, Object> response = new HashMap<>();
+        response.put("createdURL", "api/sites/version=" + newSiteVersionId.toString());
+        // Return the URI of the new site version, owner can be redirected to the new version
+        return ResponseEntity.created(URI.create("/api/sites/version=" + newSiteVersionId)).body(response);
     }
 }
