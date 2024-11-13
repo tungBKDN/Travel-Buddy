@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface SiteTypeService {
     Integer createSiteType(SiteTypeCreateRqstDto siteTypeCreateRqstDto);
+    void updateSiteType(int siteTypeId, SiteTypeCreateRqstDto siteTypeCreateRqstDto);
 
     PageDto<SiteTypeRspnDto> getAllSiteTypes(int page);
 
