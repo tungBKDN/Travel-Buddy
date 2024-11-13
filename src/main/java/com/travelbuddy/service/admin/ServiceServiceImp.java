@@ -1,6 +1,7 @@
 package com.travelbuddy.service.admin;
 
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
+import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.mapper.PageMapper;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.persistence.domain.dto.service.ServiceCreateRqstDto;
@@ -97,5 +98,18 @@ public class ServiceServiceImp implements ServiceService {
             groupedSiteServices.add(groupedSiteServicesRspnDtoItem);
         }
         return groupedSiteServices;
+    }
+
+    @Override
+    public void updateSiteService(Integer serviceId, ServiceCreateRqstDto serviceCreateRqstDto) {
+        Optional<ServiceEntity> service = serviceRepository.findById(serviceId);
+        if (service.isEmpty()) {
+            throw new NotFoundException("Service not found");
+        }
+        if (serviceRepository.existsByServiceNameIgnoreCase(serviceCreateRqstDto.getServiceName())) {
+            throw new DataAlreadyExistsException("Service already exists");
+        }
+        service.get().setServiceName(serviceCreateRqstDto.getServiceName());
+        serviceRepository.save(service.get());
     }
 }

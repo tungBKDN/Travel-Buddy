@@ -1,7 +1,9 @@
 package com.travelbuddy.sitetype.admin;
 
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
+import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.paging.PageDto;
+import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
 import com.travelbuddy.persistence.repository.SiteTypeRepository;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeCreateRqstDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
@@ -30,7 +32,6 @@ public class SiteTypeController {
         return ResponseEntity.created(URI.create("/admin/api/siteTypes/" + siteTypeId)).build();
     }
 
-    @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
     @GetMapping
     public ResponseEntity<Object> getSiteTypes(@RequestParam(name = "q", required = false, defaultValue = "") String siteTypeSearch,
                                                @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
@@ -40,5 +41,12 @@ public class SiteTypeController {
                 : siteTypeService.searchSiteTypes(siteTypeSearch, page);
 
         return ResponseEntity.ok(siteTypesPage);
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
+    @PutMapping("/{siteTypeId}")
+    public ResponseEntity<Object> updateSiteType(@PathVariable int siteTypeId, @RequestBody @Valid SiteTypeCreateRqstDto siteTypeCreateRqstDto) {
+        siteTypeService.updateSiteType(siteTypeId, siteTypeCreateRqstDto);
+        return ResponseEntity.noContent().build();
     }
 }

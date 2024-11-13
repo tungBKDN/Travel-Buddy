@@ -1,5 +1,6 @@
 package com.travelbuddy.sitetype.admin;
 
+import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.EnumNotFitException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.mapper.PageMapper;
@@ -81,5 +82,25 @@ public class SiteTypeServiceImp implements SiteTypeService {
             groupedSiteServices.add(groupedSiteServicesRspnDtoItem);
         }
         return groupedSiteServices;
+    }
+
+    @Override
+    public void updateSiteType(int siteTypeId, SiteTypeCreateRqstDto siteTypeCreateRqstDto) {
+        SiteTypeEntity siteType = siteTypeRepository.findById(siteTypeId)
+                .orElseThrow(() -> new NotFoundException("Site type not found"));
+
+        if (siteTypeRepository.existsByTypeNameIgnoreCase(siteTypeCreateRqstDto.getSiteTypeName()))
+            throw new DataAlreadyExistsException("Site type already exists");
+
+        DualStateEnum dualState;
+        try {
+            dualState = DualStateEnum.valueOf(siteTypeCreateRqstDto.getMode());
+        } catch (IllegalArgumentException e) {
+            throw new EnumNotFitException("Invalid mode: " + siteTypeCreateRqstDto.getMode());
+        }
+
+        siteType.setTypeName(siteTypeCreateRqstDto.getSiteTypeName());
+        siteType.setDualState(DualStateEnum.valueOf(siteTypeCreateRqstDto.getMode()));
+        siteTypeRepository.save(siteType);
     }
 }

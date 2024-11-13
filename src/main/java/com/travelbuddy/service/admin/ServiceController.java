@@ -34,4 +34,11 @@ public class ServiceController {
                 : serviceService.searchSiteServices(serviceSearch, page);
         return ResponseEntity.ok(siteServicesPage);
     }
+
+    @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
+    @PutMapping("/{serviceId}")
+    public ResponseEntity<Object> updateSiteService(@PathVariable Integer serviceId, @RequestBody @Valid ServiceCreateRqstDto serviceCreateRqstDto) {
+        serviceService.updateSiteService(serviceId, serviceCreateRqstDto);
+        return ResponseEntity.noContent().build();
+    }
 }
