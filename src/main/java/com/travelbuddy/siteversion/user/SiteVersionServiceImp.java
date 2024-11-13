@@ -3,6 +3,7 @@ package com.travelbuddy.siteversion.user;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
+import com.travelbuddy.persistence.domain.dto.site.SiteUpdateRqstDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
 import com.travelbuddy.persistence.repository.*;
@@ -11,7 +12,6 @@ import com.travelbuddy.service.admin.ServiceService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.travelbuddy.common.constants.GeographicLimitConstants;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,6 +49,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
     }
 
     @Override
+    @Transactional
     public SiteRepresentationDto getSiteVersionView(Integer siteVersionId) {
         SiteRepresentationDto resndBody = new SiteRepresentationDto();
         // 1. Get basic infor - siteVersion
@@ -94,5 +95,24 @@ public class SiteVersionServiceImp implements SiteVersionService {
             sitesInRange.add(mapRepresentationDto);
         }
         return sitesInRange;
+    }
+
+    @Override
+    @Transactional
+    public Integer updateSiteVersion(SiteUpdateRqstDto siteUpdateRqstDto) {
+        /* This method works like a CREATE method
+           returns: ID of the new site version
+        * */
+        SiteVersionEntity siteVersion = SiteVersionEntity.builder()
+                .siteName(siteUpdateRqstDto.getNewSiteName())
+                .lat(siteUpdateRqstDto.getNewLat())
+                .lng(siteUpdateRqstDto.getNewLng())
+                .resolvedAddress(siteUpdateRqstDto.getNewResolvedAddress())
+                .website(siteUpdateRqstDto.getNewWebSite())
+                .createdAt(LocalDateTime.now())
+                .typeId(siteUpdateRqstDto.getNewTypeId())
+                .siteId(siteUpdateRqstDto.getSiteId())
+                .build();
+        return siteVersionRepository.save(siteVersion).getId();
     }
 }
