@@ -1,5 +1,6 @@
 package com.travelbuddy.sitetype.admin;
 
+import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.EnumNotFitException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.mapper.PageMapper;
@@ -87,6 +88,9 @@ public class SiteTypeServiceImp implements SiteTypeService {
     public void updateSiteType(int siteTypeId, SiteTypeCreateRqstDto siteTypeCreateRqstDto) {
         SiteTypeEntity siteType = siteTypeRepository.findById(siteTypeId)
                 .orElseThrow(() -> new NotFoundException("Site type not found"));
+
+        if (siteTypeRepository.existsByTypeNameIgnoreCase(siteTypeCreateRqstDto.getSiteTypeName()))
+            throw new DataAlreadyExistsException("Site type already exists");
 
         DualStateEnum dualState;
         try {

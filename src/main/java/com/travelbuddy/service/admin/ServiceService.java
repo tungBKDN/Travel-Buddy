@@ -11,7 +11,7 @@ public interface ServiceService {
     void createSiteService(ServiceCreateRqstDto serviceCreateRqstDto);
     PageDto<ServiceEntity> getAllSiteServices(int page);
     PageDto<ServiceEntity> searchSiteServices(String serviceSearch, int page);
-
+    void updateSiteService(Integer serviceId, ServiceCreateRqstDto serviceCreateRqstDto);
     void createServicesBySiteVersion(int siteVersionId, int serviceId);
     void createServicesBySiteVersion(int siteVersionId, List<Integer> serviceIds);
     void removeServicesBySiteVersion(int siteVersionId, int serviceId);
