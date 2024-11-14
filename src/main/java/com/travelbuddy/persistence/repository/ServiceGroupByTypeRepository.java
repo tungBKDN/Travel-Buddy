@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ServiceGroupByTypeRepository extends JpaRepository<ServiceGroupByTypeEntity, Integer> {
     Optional<List<ServiceGroupByTypeEntity>> findAllByTypeId(Integer typeId);
+    Optional<ServiceGroupByTypeEntity> findByTypeIdAndServiceGroupId(Integer typeId, Integer serviceGroupId);
 }
