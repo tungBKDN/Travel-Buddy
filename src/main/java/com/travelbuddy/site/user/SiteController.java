@@ -96,7 +96,6 @@ public class SiteController {
         if (!userId.equals(ownerId)) {
             return ResponseEntity.status(403).build();
         }
-
         return ResponseEntity.ok(siteRepresentationDto);
     }
 }
