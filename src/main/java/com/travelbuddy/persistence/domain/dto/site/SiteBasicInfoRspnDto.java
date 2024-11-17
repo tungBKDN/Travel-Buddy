@@ -1,16 +1,14 @@
 package com.travelbuddy.persistence.domain.dto.site;
 
-import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
-import com.travelbuddy.persistence.domain.entity.OpeningTimeEntity;
-import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
-import com.travelbuddy.persistence.domain.entity.UserEntity;
+import com.travelbuddy.persistence.domain.entity.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SiteBasicInfoRspnDto {
     private Integer siteId;
     private Integer siteVersionId;
@@ -32,6 +30,9 @@ public class SiteBasicInfoRspnDto {
     private String website;
     private String createdAt;
     private SiteTypeRspnDto siteType;
+
+    private Double averageRating;
+    private Integer totalRating;
 
     public void mapSiteVersion(SiteVersionEntity siteVersion) {
         this.siteId = siteVersion.getSiteId();
@@ -56,5 +57,43 @@ public class SiteBasicInfoRspnDto {
     public void mapView(SiteVersionEntity siteVersion, UserEntity userEntity) {
         mapSiteVersion(siteVersion);
         mapUser(userEntity);
+    }
+
+    public SiteBasicInfoRspnDto(SiteVersionEntity siteVersionEntity) {
+        this.siteId = siteVersionEntity.getSiteId();
+        this.siteVersionId = siteVersionEntity.getId();
+        this.siteName = siteVersionEntity.getSiteName();
+        this.lat = siteVersionEntity.getLat();
+        this.lng = siteVersionEntity.getLng();
+        this.resolvedAddress = siteVersionEntity.getResolvedAddress();
+        this.website = siteVersionEntity.getWebsite();
+        this.createdAt = siteVersionEntity.getCreatedAt().toString();
+        this.siteType = new SiteTypeRspnDto(siteVersionEntity.getSiteType());
+
+        // Mapping the owner
+        UserEntity owner = siteVersionEntity.getSiteEntity().getUserEntity();
+        this.ownerId = owner.getId();
+        this.ownerUsername = owner.getNickname();
+        this.ownerProfilePicture = owner.getAvatar() != null ? owner.getAvatar().getUrl() : null;
+
+        // Mapping the reactions
+        this.likeCount = (int) siteVersionEntity.getSiteEntity().getSiteReactions().stream()
+                .filter(siteReactionEntity -> "LIKE".equals(siteReactionEntity.getReactionType()))
+                .count();
+        this.dislikeCount = (int) siteVersionEntity.getSiteEntity().getSiteReactions().stream()
+                .filter(siteReactionEntity -> "DISLIKE".equals(siteReactionEntity.getReactionType()))
+                .count();
+        this.userReaction = siteVersionEntity.getSiteEntity().getSiteReactions().stream()
+                .filter(siteReactionEntity -> owner.getId().equals(siteReactionEntity.getUserId()))
+                .findFirst()
+                .map(SiteReactionEntity::getReactionType)
+                .orElse(null);
+
+        // Mapping the ratings
+        this.totalRating = siteVersionEntity.getSiteEntity().getSiteReviewEntities().size();
+        this.averageRating = siteVersionEntity.getSiteEntity().getSiteReviewEntities().stream()
+                .mapToDouble(SiteReviewEntity::getGeneralRating)
+                .average()
+                .orElse(0);
     }
 }

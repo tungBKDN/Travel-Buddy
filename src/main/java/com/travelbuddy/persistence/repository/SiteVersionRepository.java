@@ -2,6 +2,9 @@ package com.travelbuddy.persistence.repository;
 
 import com.travelbuddy.common.constants.ApprovalStatusEnum;
 import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +32,5 @@ public interface SiteVersionRepository extends JpaRepository<SiteVersionEntity, 
                                                             @Param("lng") double lng,
                                                             @Param("degRadius") double degRadius);
 
+    Page<SiteVersionEntity> findAll(Specification<SiteVersionEntity> spec, Pageable pageable);
 }

@@ -49,6 +49,14 @@ public class SiteRepresentationDto implements Serializable {
 
     private List<MediaRspnDto> medias;
 
+    private Double averageRating;
+    private Integer totalRating;
+    private Integer fiveStarRating;
+    private Integer fourStarRating;
+    private Integer threeStarRating;
+    private Integer twoStarRating;
+    private Integer oneStarRating;
+
     public void mapSiteVersion(SiteVersionEntity siteVersion) {
         this.siteId = siteVersion.getSiteId();
         this.siteVersionId = siteVersion.getId();

@@ -19,4 +19,7 @@ public class MapRepresentationDto {
     private double lat;
     private double lng;
     private List<MediaRspnDto> medias;
+
+    private Double averageRating;
+    private Integer totalRating;
 }

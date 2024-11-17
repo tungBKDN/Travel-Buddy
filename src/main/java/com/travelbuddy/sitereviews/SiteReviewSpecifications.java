@@ -16,7 +16,7 @@ import java.sql.Date;
 public class SiteReviewSpecifications {
     private final RequestUtils requestUtils;
 
-    public Specification<SiteReviewEntity> customeScoreBySiteId(Long siteId) {
+    public Specification<SiteReviewEntity> customScoreBySiteId(Long siteId) {
         // Đặt các hệ số cho thuật toán
         double a = 1.0;
         double b = 0.5;

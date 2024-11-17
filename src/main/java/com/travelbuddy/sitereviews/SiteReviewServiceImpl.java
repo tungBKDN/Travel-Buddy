@@ -68,7 +68,7 @@ public class SiteReviewServiceImpl implements SiteReviewService {
 
     @Override
     public PageDto<SiteReviewRspnDto> getAllSiteReviews(int siteId, int page) {
-        Specification<SiteReviewEntity> specification = siteReviewSpecifications.customeScoreBySiteId((long) siteId);
+        Specification<SiteReviewEntity> specification = siteReviewSpecifications.customScoreBySiteId((long) siteId);
 
         Pageable pageable = PageRequest.of(page - 1, SITE_REVIEW_LIMIT);
         Page<SiteReviewEntity> siteReviews = siteReviewRepository.findAll(specification, pageable);
