@@ -1,4 +1,4 @@
-package com.travelbuddy.common.exception.errorresponse;
+package com.travelbuddy.common.exception;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;

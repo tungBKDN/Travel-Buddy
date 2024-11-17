@@ -45,10 +45,10 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public LoginRspnDto login(LoginRqstDto loginRqstDto) {
-        String emailOrUsername = loginRqstDto.getEmailOrUsername();
+        String email = loginRqstDto.getEmail();
         String password = loginRqstDto.getPassword();
 
-        UserEntity user = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
+        UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(InvalidLoginCredentialsException::new);
 
         if (!passwordEncoder.matches(password, user.getPassword()) || !user.isEnabled()) {
@@ -83,6 +83,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         user.setEmail(registerRqstDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registerRqstDTO.getPassword()));
         user.setFullName(registerRqstDTO.getFullName());
+        user.setNickname(registerRqstDTO.getNickname());
 
         userRepository.save(user);
 
@@ -100,7 +101,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public void confirmRegistration(VerificationOtpRqstDto verificationOtpRqstDto) {
-        UserEntity user = userRepository.findByEmailOrUsername(verificationOtpRqstDto.getEmail(), verificationOtpRqstDto.getEmail())
+        UserEntity user = userRepository.findByEmail(verificationOtpRqstDto.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Long attempts = userAuthRedisService.increment("otp_attempts:" + user.getId(), 1);
@@ -125,7 +126,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Override
     public void resetPassword(ResetPasswordRqstDto resetPasswordRqstDto) {
-        UserEntity user = userRepository.findByEmailOrUsername(resetPasswordRqstDto.getEmail(), resetPasswordRqstDto.getEmail())
+        UserEntity user = userRepository.findByEmail(resetPasswordRqstDto.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         String otp = generateOtp();
@@ -140,9 +141,10 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .build());
     }
 
+
     @Override
-    public void confirmNewPassword(ConfirmNewPasswordRqstDto confirmNewPasswordTokenDto) {
-        UserEntity user = userRepository.findByEmailOrUsername(confirmNewPasswordTokenDto.getEmail(), confirmNewPasswordTokenDto.getEmail())
+    public void validateResetPassword(VerificationOtpRqstDto verificationOtpRqstDto) {
+        UserEntity user = userRepository.findByEmail(verificationOtpRqstDto.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Long attempts = userAuthRedisService.increment("otp_rs_pw_attempts:" + user.getId(), 1);
@@ -154,24 +156,29 @@ public class UserAuthServiceImpl implements UserAuthService {
         }
 
         String otp = userAuthRedisService.get("otp_rs_pw:" + user.getId());
-        if (!otp.equals(confirmNewPasswordTokenDto.getOtp())) {
+        if (!otp.equals(verificationOtpRqstDto.getOtp())) {
             throw new InvaidOtpException("Invalid OTP");
         }
 
         userAuthRedisService.delete("otp_rs_pw_attempts:" + user.getId());
         userAuthRedisService.delete("otp_rs_pw:" + user.getId());
 
-        user.setPassword(passwordEncoder.encode(confirmNewPasswordTokenDto.getNewPassword()));
-        userRepository.save(user);
-
+        userAuthRedisService.save("otp_rs_pw_verified:" + user.getId(), String.valueOf(true), 15, TimeUnit.MINUTES);
     }
 
     @Override
-    public BasicInfoDto getUserBasicInfo(String emailOrUsername) {
-        UserEntity user = userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
+    public void confirmNewPassword(ConfirmNewPasswordRqstDto confirmNewPasswordTokenDto) {
+        UserEntity user = userRepository.findByEmail(confirmNewPasswordTokenDto.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        return userMapper.toBasicInfoDto(user);
+        String otpVerified = userAuthRedisService.get("otp_rs_pw_verified:" + user.getId());
+
+        if (!Boolean.parseBoolean(otpVerified)) {
+            throw new InvaidOtpException("OTP not verified");
+        }
+
+        user.setPassword(passwordEncoder.encode(confirmNewPasswordTokenDto.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override

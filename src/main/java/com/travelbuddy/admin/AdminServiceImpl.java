@@ -1,6 +1,5 @@
-package com.travelbuddy.auth.service.impl;
+package com.travelbuddy.admin;
 
-import com.travelbuddy.auth.service.AdminService;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.persistence.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,13 +7,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AdminServiceImp implements AdminService {
+public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
 
     @Override
-    public int getAdminIdByEmailOrUsername(String email) {
-        return adminRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Admin not found"))
+    public int getAdminIdByEmail(String email) {
+        return adminRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Admin with email not found"))
                 .getId();
     }
 }

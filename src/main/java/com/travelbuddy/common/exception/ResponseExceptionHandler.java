@@ -1,8 +1,9 @@
-package com.travelbuddy.common.exception.errorresponse;
+package com.travelbuddy.common.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
+import com.travelbuddy.common.exception.errorresponse.*;
 import com.travelbuddy.common.exception.userinput.InvaidOtpException;
 import com.travelbuddy.common.exception.userinput.UserInputException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import javax.naming.SizeLimitExceededException;
 import java.util.List;
 
 @Slf4j
@@ -84,6 +87,14 @@ public class ResponseExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBuilder.build());
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse.builder()
+                .withMessage(ex.getMessage())
+                .build());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<Void> handleAllUncaughtException(Exception ex) {
@@ -134,6 +145,14 @@ public class ResponseExceptionHandler {
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
                 .withMessage(ex.getMessage())
+                .build());
+    }
+
+    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleMaxUploadSizeExceededException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.builder()
+                .withMessage("File size is too large " + ex.getMessage())
                 .build());
     }
 }
