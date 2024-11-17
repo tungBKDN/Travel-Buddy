@@ -10,4 +10,7 @@ public interface SiteService {
     Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto, List<SiteMediaEntity> siteMediaEntities);
     SiteBasicInfoRspnDto getSiteBasicRepresentation(Integer siteID);
 
+    void likeSite(int siteId);
+
+    void dislikeSite(int siteId);
 }

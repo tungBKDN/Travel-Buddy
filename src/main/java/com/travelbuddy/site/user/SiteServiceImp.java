@@ -134,4 +134,51 @@ public class SiteServiceImp implements SiteService {
         return siteVersionService.getSiteVersionBasicView(latestApprovedVersionId.get());
     }
 
+    @Override
+    public void likeSite(int siteId) {
+        int userId = requestUtils.getUserIdCurrentRequest();
+
+        Optional<SiteReactionEntity> siteReactionEntityOpt = siteReactionRepository.findByUserIdAndSiteId(userId, siteId);
+
+        SiteReactionEntity siteReactionEntity;
+        if (siteReactionEntityOpt.isPresent()) {
+            siteReactionEntity = siteReactionEntityOpt.get();
+            if (ReactionTypeEnum.LIKE.name().equals(siteReactionEntity.getReactionType())) {
+                siteReactionEntity.setReactionType(null);
+            } else {
+                siteReactionEntity.setReactionType(ReactionTypeEnum.LIKE.name());
+            }
+        } else {
+            siteReactionEntity = SiteReactionEntity.builder()
+                    .userId(userId)
+                    .siteId(siteId)
+                    .reactionType(ReactionTypeEnum.LIKE.name())
+                    .build();
+        }
+        siteReactionRepository.save(siteReactionEntity);
+    }
+
+    @Override
+    public void dislikeSite(int siteId) {
+        int userId = requestUtils.getUserIdCurrentRequest();
+
+        Optional<SiteReactionEntity> siteReactionEntityOpt = siteReactionRepository.findByUserIdAndSiteId(userId, siteId);
+
+        SiteReactionEntity siteReactionEntity;
+        if (siteReactionEntityOpt.isPresent()) {
+            siteReactionEntity = siteReactionEntityOpt.get();
+            if (ReactionTypeEnum.DISLIKE.name().equals(siteReactionEntity.getReactionType())) {
+                siteReactionEntity.setReactionType(null);
+            } else {
+                siteReactionEntity.setReactionType(ReactionTypeEnum.DISLIKE.name());
+            }
+        } else {
+            siteReactionEntity = SiteReactionEntity.builder()
+                    .userId(userId)
+                    .siteId(siteId)
+                    .reactionType(ReactionTypeEnum.DISLIKE.name())
+                    .build();
+        }
+        siteReactionRepository.save(siteReactionEntity);
+    }
 }

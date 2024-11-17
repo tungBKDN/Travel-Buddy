@@ -146,4 +146,57 @@ public class SiteReviewServiceImpl implements SiteReviewService {
         return siteReviewEntity.getUserId();
     }
 
+    @Override
+    public void likeSiteReview(int reviewId) {
+        int userId = requestUtils.getUserIdCurrentRequest();
+
+        SiteReviewEntity siteReviewEntity = siteReviewRepository.findById((long) reviewId)
+                .orElseThrow(() -> new NotFoundException("Site review not found"));
+
+        Optional<ReviewReactionEntity> reviewReactionEntityOpt = reviewReactionRepository.findByUserIdAndReviewId(userId, siteReviewEntity.getId());
+
+        ReviewReactionEntity reviewReactionEntity;
+        if (reviewReactionEntityOpt.isPresent()) {
+            reviewReactionEntity = reviewReactionEntityOpt.get();
+            if (ReactionTypeEnum.LIKE.name().equals(reviewReactionEntity.getReactionType())) {
+                reviewReactionEntity.setReactionType(null);
+            } else {
+                reviewReactionEntity.setReactionType(ReactionTypeEnum.LIKE.name());
+            }
+        } else {
+            reviewReactionEntity = ReviewReactionEntity.builder()
+                    .userId(userId)
+                    .reviewId(siteReviewEntity.getId())
+                    .reactionType(ReactionTypeEnum.LIKE.name())
+                    .build();
+        }
+        reviewReactionRepository.save(reviewReactionEntity);
+    }
+
+    @Override
+    public void dislikeSiteReview(int reviewId) {
+        int userId = requestUtils.getUserIdCurrentRequest();
+
+        SiteReviewEntity siteReviewEntity = siteReviewRepository.findById((long) reviewId)
+                .orElseThrow(() -> new NotFoundException("Site review not found"));
+
+        Optional<ReviewReactionEntity> reviewReactionEntityOpt = reviewReactionRepository.findByUserIdAndReviewId(userId, siteReviewEntity.getId());
+
+        ReviewReactionEntity reviewReactionEntity;
+        if (reviewReactionEntityOpt.isPresent()) {
+            reviewReactionEntity = reviewReactionEntityOpt.get();
+            if (ReactionTypeEnum.DISLIKE.name().equals(reviewReactionEntity.getReactionType())) {
+                reviewReactionEntity.setReactionType(null);
+            } else {
+                reviewReactionEntity.setReactionType(ReactionTypeEnum.DISLIKE.name());
+            }
+        } else {
+            reviewReactionEntity = ReviewReactionEntity.builder()
+                    .userId(userId)
+                    .reviewId(siteReviewEntity.getId())
+                    .reactionType(ReactionTypeEnum.DISLIKE.name())
+                    .build();
+        }
+        reviewReactionRepository.save(reviewReactionEntity);
+    }
 }

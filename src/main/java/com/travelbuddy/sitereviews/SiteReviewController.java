@@ -188,4 +188,15 @@ public class SiteReviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{reviewId}/like")
+    public ResponseEntity<Void> likeSiteReview(@PathVariable int reviewId) {
+        siteReviewService.likeSiteReview(reviewId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{reviewId}/dislike")
+    public ResponseEntity<Void> dislikeSiteReview(@PathVariable int reviewId) {
+        siteReviewService.dislikeSiteReview(reviewId);
+        return ResponseEntity.ok().build();
+    }
 }

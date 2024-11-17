@@ -240,4 +240,16 @@ public class SiteController {
         return ResponseEntity.ok(siteTypesPage);
     }
 
+    @PostMapping("/{siteId}/like")
+    public ResponseEntity<Object> likeSite(@PathVariable int siteId) {
+        siteService.likeSite(siteId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{siteId}/dislike")
+    public ResponseEntity<Object> dislikeSite(@PathVariable int siteId) {
+        siteService.dislikeSite(siteId);
+        return ResponseEntity.ok().build();
+    }
+
 }

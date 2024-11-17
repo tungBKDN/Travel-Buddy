@@ -22,4 +22,7 @@ public interface SiteReviewService {
 
     Integer getSiteReviewOwner(int reviewId);
 
+    void likeSiteReview(int reviewId);
+
+    void dislikeSiteReview(int reviewId);
 }
