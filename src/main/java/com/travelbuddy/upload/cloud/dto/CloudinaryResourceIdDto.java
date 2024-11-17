@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CloudinaryResourceId {
+public class CloudinaryResourceIdDto {
     private String id;
     private String resourceType;
 }

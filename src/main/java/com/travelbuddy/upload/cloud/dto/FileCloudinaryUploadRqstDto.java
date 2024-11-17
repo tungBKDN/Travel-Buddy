@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UploadedFileDto {
-    private String id;
+public class FileCloudinaryUploadRqstDto {
+    private CloudinaryResourceIdDto resourceId;
     private String url;
 }

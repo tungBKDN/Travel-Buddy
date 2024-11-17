@@ -2,9 +2,9 @@ package com.travelbuddy.upload.cloud;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.exceptions.NotFound;
-import com.travelbuddy.upload.cloud.dto.CloudinaryResourceId;
-import com.travelbuddy.upload.cloud.dto.CloudinaryUploadedFileDto;
-import com.travelbuddy.upload.cloud.dto.UploadDto;
+import com.travelbuddy.upload.cloud.dto.CloudinaryResourceIdDto;
+import com.travelbuddy.upload.cloud.dto.FileCloudinaryUploadRqstDto;
+import com.travelbuddy.upload.cloud.dto.FileUploadRqstDto;
 import com.travelbuddy.upload.cloud.exception.UploadFileNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class CloudinaryUploadService implements MediaUploadService<CloudinaryResourceId, CloudinaryUploadedFileDto> {
+public class CloudinaryUploadService implements MediaUploadService<CloudinaryResourceIdDto, FileCloudinaryUploadRqstDto> {
     private final int deleteBatchSize;
 
     private final Cloudinary cloudinary;
@@ -30,14 +30,14 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
     }
 
     @Override
-    public CloudinaryUploadedFileDto uploadFile(UploadDto uploadDto) {
-        String folder = uploadDto.getFolder();
+    public FileCloudinaryUploadRqstDto uploadFile(FileUploadRqstDto fileUploadRqstDto) {
+        String folder = fileUploadRqstDto.getFolder();
 
         Map<String, Object> params = new HashMap<>();
         params.put("folder", folder == null ? "" : folder);
-        params.put("resource_type", getResourceType(uploadDto));
+        params.put("resource_type", getResourceType(fileUploadRqstDto));
 
-        File tempFile = createTempFile(uploadDto.getInputStream(), uploadDto.getExtension());
+        File tempFile = createTempFile(fileUploadRqstDto.getInputStream(), fileUploadRqstDto.getExtension());
         try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(tempFile, params);
 
@@ -50,7 +50,7 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
     }
 
     @Override
-    public CloudinaryUploadedFileDto getFileData(CloudinaryResourceId fileId) {
+    public FileCloudinaryUploadRqstDto getFileData(CloudinaryResourceIdDto fileId) {
         try {
             Map<?, ?> result = cloudinary.api().resource(fileId.getId(),
                     Map.of("resource_type", fileId.getResourceType()));
@@ -63,12 +63,12 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
     }
 
     @Override
-    public void deleteFile(CloudinaryResourceId fileId) {
+    public void deleteFile(CloudinaryResourceIdDto fileId) {
         deleteFileFromCloud(fileId);
     }
 
     @Override
-    public void deleteFiles(List<CloudinaryResourceId> fileIds) {
+    public void deleteFiles(List<CloudinaryResourceIdDto> fileIds) {
         int fromIndex = 0;
         int toIndex = Math.min(deleteBatchSize, fileIds.size());
 
@@ -80,8 +80,8 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
         }
     }
 
-    private String getResourceType(UploadDto uploadDto) {
-        String mimeType = uploadDto.getMimeType();
+    private String getResourceType(FileUploadRqstDto fileUploadRqstDto) {
+        String mimeType = fileUploadRqstDto.getMimeType();
 
         if (mimeType.startsWith("image")) {
             return "image";
@@ -94,7 +94,7 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
 
     private File createTempFile(InputStream inputStream, String fileExtension) {
         try {
-            File tempFile = File.createTempFile("FluentEnglish" + File.separator,
+            File tempFile = File.createTempFile("TravelBuddy" + File.separator,
                     fileExtension == null ? "" : "." + fileExtension);
             try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(tempFile))) {
                 inputStream.transferTo(outputStream);
@@ -106,11 +106,11 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
         }
     }
 
-    private CloudinaryUploadedFileDto getUploadedFileDto(Map<?, ?> uploadResult) {
-        CloudinaryUploadedFileDto uploadedFileDto = new CloudinaryUploadedFileDto();
+    private FileCloudinaryUploadRqstDto getUploadedFileDto(Map<?, ?> uploadResult) {
+        FileCloudinaryUploadRqstDto uploadedFileDto = new FileCloudinaryUploadRqstDto();
         uploadedFileDto.setUrl((String) uploadResult.get("secure_url"));
 
-        CloudinaryResourceId resourceId = new CloudinaryResourceId();
+        CloudinaryResourceIdDto resourceId = new CloudinaryResourceIdDto();
         resourceId.setId((String) uploadResult.get("public_id"));
         resourceId.setResourceType((String) uploadResult.get("resource_type"));
         uploadedFileDto.setResourceId(resourceId);
@@ -118,7 +118,7 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
         return uploadedFileDto;
     }
 
-    private void deleteBatch(List<CloudinaryResourceId> fileIdsInBatch) {
+    private void deleteBatch(List<CloudinaryResourceIdDto> fileIdsInBatch) {
         Map<String, List<String>> idsByResourceType = new HashMap<>();
         fileIdsInBatch.forEach(fileId -> {
             idsByResourceType
@@ -135,7 +135,7 @@ public class CloudinaryUploadService implements MediaUploadService<CloudinaryRes
         });
     }
 
-    private void deleteFileFromCloud(CloudinaryResourceId resourceId) {
+    private void deleteFileFromCloud(CloudinaryResourceIdDto resourceId) {
         try {
             cloudinary.uploader().destroy(resourceId.getId(),
                     Map.of("resource_type", resourceId.getResourceType()));

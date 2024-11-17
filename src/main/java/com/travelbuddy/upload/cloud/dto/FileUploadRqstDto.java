@@ -1,13 +1,15 @@
 package com.travelbuddy.upload.cloud.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.InputStream;
 
 @Getter
 @Setter
-public class UploadDto {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class FileUploadRqstDto {
     private InputStream inputStream;
 
     private String folder;
