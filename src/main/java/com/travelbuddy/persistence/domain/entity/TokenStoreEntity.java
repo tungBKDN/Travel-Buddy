@@ -1,6 +1,5 @@
 package com.travelbuddy.persistence.domain.entity;
 
-import com.travelbuddy.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

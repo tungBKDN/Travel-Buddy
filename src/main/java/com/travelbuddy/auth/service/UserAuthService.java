@@ -11,9 +11,9 @@ public interface UserAuthService {
 
     void resetPassword(ResetPasswordRqstDto resetPasswordRqstDto);
 
-    void confirmNewPassword(ConfirmNewPasswordRqstDto confirmNewPasswordRqstDto);
+    void validateResetPassword(VerificationOtpRqstDto verificationOtpRqstDto);
 
-    BasicInfoDto getUserBasicInfo(String emailOrUsername);
+    void confirmNewPassword(ConfirmNewPasswordRqstDto confirmNewPasswordRqstDto);
 
     String refreshToken(int userId);
 }

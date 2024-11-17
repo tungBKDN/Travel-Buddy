@@ -8,9 +8,10 @@ $$
                    (3, 'MANAGE_PERMISSIONS'),
                    (4, 'MANAGE_ROLES'),
                    (5, 'MANAGE_CATEGORIES'),
-                   (6, 'MANAGE_POSTS'),
+                   (6, 'MANAGE_SITES'),
                    (7, 'MANAGE_COMMENTS'),
-                   (8, 'MANAGE_TAGS');
+                   (8, 'MANAGE_TAGS'),
+                   (9, 'MANAGE_SITE_TYPES');
         END IF;
     END;
 $$;

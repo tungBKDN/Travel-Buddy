@@ -1,20 +1,22 @@
 package com.travelbuddy.auth.controller;
 
-import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
 import com.travelbuddy.auth.service.TokenStoreService;
 import com.travelbuddy.auth.service.UserAuthService;
+import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
+import com.travelbuddy.common.exception.errorresponse.InvaidTokenException;
 import com.travelbuddy.persistence.domain.dto.auth.*;
 import com.travelbuddy.persistence.domain.entity.TokenStoreEntity;
-import com.travelbuddy.common.exception.errorresponse.ErrorResponse;
 import com.travelbuddy.user.UserService;
 import jakarta.validation.Valid;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class UserAuthController {
     private final UserAuthService userAuthService;
 
@@ -22,28 +24,16 @@ public class UserAuthController {
 
     private final TokenStoreService tokenStoreService;
 
-    public UserAuthController(UserAuthService userAuthService, UserService userService, TokenStoreService tokenStoreService) {
-        this.userAuthService = userAuthService;
-        this.userService = userService;
-        this.tokenStoreService = tokenStoreService;
-    }
-
     @PostMapping("/login")
     public ResponseEntity<Object> postLogin(@RequestBody @Valid LoginRqstDto loginRqstDto) {
-        try {
-            LoginRspnDto loginRspnDto = userAuthService.login(loginRqstDto);
-            return ResponseEntity.ok(loginRspnDto);
-        } catch (InvalidLoginCredentialsException e) {
-            return ResponseEntity.badRequest().body(ErrorResponse.builder()
-                    .withMessage("Invalid email or password").build());
-        }
+        LoginRspnDto loginRspnDto = userAuthService.login(loginRqstDto);
+        return ResponseEntity.ok(loginRspnDto);
     }
 
     @PostMapping("/register")
     public ResponseEntity<Object> postRegister(@RequestBody @Valid RegisterRqstDto registerRqstDto) {
         if(userService.isUserExists(registerRqstDto.getEmail())) {
-            return ResponseEntity.badRequest().body(ErrorResponse.builder()
-                    .withMessage("Email already exists").build());
+            throw new DataAlreadyExistsException("Email already exists");
         }
 
         userAuthService.register(registerRqstDto);
@@ -63,6 +53,12 @@ public class UserAuthController {
         return ResponseEntity.accepted().build();
     }
 
+    @PostMapping("/validate-reset-password")
+    public ResponseEntity<Object> validateResetPassword(@RequestBody @Valid VerificationOtpRqstDto verificationOtpRqstDto) {
+        userAuthService.validateResetPassword(verificationOtpRqstDto);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/reset-password")
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ConfirmNewPasswordRqstDto confirmNewPasswordRqstDto) {
         userAuthService.confirmNewPassword(confirmNewPasswordRqstDto);
@@ -76,15 +72,15 @@ public class UserAuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<TokenRspnDto> refreshToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Object> refreshToken(@RequestHeader("Authorization") String token) {
         if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().build();
+            throw new InvaidTokenException("Refresh token is required");
         }
 
         Optional<TokenStoreEntity> tokenStoreEntity = tokenStoreService.findByToken(token.substring(7));
 
         if(tokenStoreEntity.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+            throw new InvaidTokenException("Invalid refresh token");
         }
 
         String accessToken = userAuthService.refreshToken(tokenStoreEntity.get().getUserId());

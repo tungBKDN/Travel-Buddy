@@ -2,8 +2,8 @@ package com.travelbuddy.upload;
 
 import com.travelbuddy.common.utils.FilenameUtils;
 import com.travelbuddy.upload.cloud.StorageService;
-import com.travelbuddy.upload.cloud.dto.UploadDto;
-import com.travelbuddy.upload.cloud.dto.UploadedFileDto;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
+import com.travelbuddy.upload.cloud.dto.FileUploadRqstDto;
 import com.travelbuddy.upload.cloud.exception.UploadFileNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,31 +21,31 @@ public class UploadController {
     }
 
     @PostMapping
-    public ResponseEntity<UploadedFileDto> upload(@RequestParam("file") MultipartFile file,
-                                                  @RequestParam("folder") String folder,
-                                                  @RequestParam(value = "temporary", required = false, defaultValue = "true")
+    public ResponseEntity<FileRspnDto> upload(@RequestParam("file") MultipartFile file,
+                                              @RequestParam("folder") String folder,
+                                              @RequestParam(value = "temporary", required = false, defaultValue = "true")
                                             boolean temporary) throws IOException {
         if (file.isEmpty()) {
             throw new RuntimeException("File is empty");
         }
 
-        UploadDto uploadDto = new UploadDto();
-        uploadDto.setInputStream(file.getInputStream());
-        uploadDto.setFolder(folder);
-        uploadDto.setMimeType(file.getContentType());
-        uploadDto.setExtension(FilenameUtils.getExtension(file.getOriginalFilename()).orElse(null));
+        FileUploadRqstDto fileUploadRqstDto = new FileUploadRqstDto();
+        fileUploadRqstDto.setInputStream(file.getInputStream());
+        fileUploadRqstDto.setFolder(folder);
+        fileUploadRqstDto.setMimeType(file.getContentType());
+        fileUploadRqstDto.setExtension(FilenameUtils.getExtension(file.getOriginalFilename()).orElse(null));
 
-        UploadedFileDto uploadedFile = temporary
-                ? storageService.uploadFileTemp(uploadDto)
-                : storageService.uploadFile(uploadDto);
+        FileRspnDto uploadedFile = temporary
+                ? storageService.uploadFileTemp(fileUploadRqstDto)
+                : storageService.uploadFile(fileUploadRqstDto);
 
         return ResponseEntity.ok(uploadedFile);
     }
 
     @GetMapping("/file/{fileId}")
-    public ResponseEntity<UploadedFileDto> getFileInfo(@PathVariable String fileId) {
+    public ResponseEntity<FileRspnDto> getFileInfo(@PathVariable String fileId) {
         try {
-            UploadedFileDto uploadedFile = storageService.getFileData(fileId);
+            FileRspnDto uploadedFile = storageService.getFileData(fileId);
             return ResponseEntity.ok(uploadedFile);
         } catch (UploadFileNotFoundException e) {
             return ResponseEntity.notFound().build();

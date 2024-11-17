@@ -12,7 +12,4 @@ public class ConfirmNewPasswordRqstDto {
 
     @NotBlank(message = "New Password is required")
     private String newPassword;
-
-    @NotBlank(message = "OTP is required")
-    private String otp;
 }
