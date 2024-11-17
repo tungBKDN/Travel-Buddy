@@ -10,3 +10,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('site_types_id_seq', (SELECT MAX(id) FROM site_types));

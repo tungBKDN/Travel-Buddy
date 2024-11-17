@@ -25,15 +25,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String emailOrUsername) throws UsernameNotFoundException {
-        if (userRepository.existsByEmailOrUsername(emailOrUsername, emailOrUsername)) {
-            return userRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        if (userRepository.existsByEmail(email)) {
+            return userRepository.findByEmail(email)
                     .map(CustomUserDetailsService::create)
-                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + emailOrUsername));
+                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
         } else {
-            return adminRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
+            return adminRepository.findByEmail(email)
                     .map(CustomUserDetailsService::create)
-                    .orElseThrow(() -> new UsernameNotFoundException("Admin Not Found with email or username: " + emailOrUsername));
+                    .orElseThrow(() -> new UsernameNotFoundException("Admin Not Found with email: " + email));
         }
     }
 

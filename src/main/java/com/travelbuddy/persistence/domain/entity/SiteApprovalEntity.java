@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -36,4 +37,8 @@ public class SiteApprovalEntity {
 
     @Column(name = "approved_at")
     private Timestamp approvedAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "site_version_id", insertable = false, updatable = false)
+    private SiteVersionEntity siteVersion;
 }

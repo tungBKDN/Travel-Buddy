@@ -18,4 +18,5 @@ public class SiteUpdateRqstDto {
     private List<String> newPhoneNumbers;
     private List<OpeningTimeCreateRqstDto> newOpeningTimes;
     private List<Integer> newServices;
+    private List<Integer> mediaIds;
 }

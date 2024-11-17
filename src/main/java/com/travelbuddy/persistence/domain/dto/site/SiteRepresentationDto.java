@@ -2,6 +2,7 @@ package com.travelbuddy.persistence.domain.dto.site;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
@@ -25,6 +26,10 @@ public class SiteRepresentationDto implements Serializable {
     private Integer siteId;
     private Integer siteVersionId;
 
+    private Integer likeCount;
+    private Integer dislikeCount;
+    private String userReaction;
+
     // Owner informations
     private Integer ownerId;
     private String ownerUsername;
@@ -42,6 +47,8 @@ public class SiteRepresentationDto implements Serializable {
     private List<GroupedSiteServicesRspnDto> groupedServices;
     private List<OpeningTimeRepresentationDto> openingTimes;
 
+    private List<MediaRspnDto> medias;
+
     public void mapSiteVersion(SiteVersionEntity siteVersion) {
         this.siteId = siteVersion.getSiteId();
         this.siteVersionId = siteVersion.getId();
@@ -53,13 +60,12 @@ public class SiteRepresentationDto implements Serializable {
         this.createdAt = siteVersion.getCreatedAt().toString();
 
         // Mapping the siteType
-        this.siteType = new SiteTypeRspnDto();
-        this.siteType.mapFromSiteTypeEntity(siteVersion.getSiteType());
+        this.siteType = new SiteTypeRspnDto(siteVersion.getSiteType());
     }
 
     public void mapUser(UserEntity userEntity) {
         this.ownerId = userEntity.getId();
-        this.ownerUsername = userEntity.getUsername();
+        this.ownerUsername = userEntity.getNickname();
         this.ownerProfilePicture = null;
     }
 

@@ -39,10 +39,10 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     }
 
     public LoginRspnDto login(LoginRqstDto loginRqstDto) {
-        String emailOrUsername = loginRqstDto.getEmailOrUsername();
+        String email = loginRqstDto.getEmail();
         String password = loginRqstDto.getPassword();
 
-        AdminEntity admin = adminRepository.findByEmailOrUsername(emailOrUsername, emailOrUsername)
+        AdminEntity admin = adminRepository.findByEmail(email)
                 .orElseThrow(InvalidLoginCredentialsException::new);
 
         if (!passwordEncoder.matches(password, admin.getPassword())) {
