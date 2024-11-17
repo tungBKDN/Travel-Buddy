@@ -1,12 +1,14 @@
 package com.travelbuddy.site.user;
 
+import com.travelbuddy.common.constants.PaginationLimitConstants;
 import com.travelbuddy.common.constants.ReactionTypeEnum;
 import com.travelbuddy.common.exception.errorresponse.ForbiddenException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.common.mapper.PageMapper;
+import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.common.utils.RequestUtils;
 import com.travelbuddy.openningtime.user.OpeningTimeService;
 import com.travelbuddy.persistence.domain.dto.site.*;
-import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
 import com.travelbuddy.persistence.repository.*;
 import com.travelbuddy.phonenumber.user.PhoneNumberService;
@@ -16,7 +18,10 @@ import com.travelbuddy.siteversion.user.SiteVersionService;
 import com.travelbuddy.upload.cloud.StorageExecutorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,6 +45,8 @@ public class SiteServiceImp implements SiteService {
     private final SiteReactionRepository siteReactionRepository;
     private final SiteMediaRepository siteMediaRepository;
     private final StorageExecutorService storageExecutorService;
+    private final SiteVersionSpecifications siteVersionSpecifications;
+    private final PageMapper pageMapper;
 
     @Override
     @Transactional
@@ -180,5 +187,15 @@ public class SiteServiceImp implements SiteService {
                     .build();
         }
         siteReactionRepository.save(siteReactionEntity);
+    }
+
+    @Override
+    public PageDto<SiteBasicInfoRspnDto> searchSites(String siteSearch, int page) {
+        Pageable pageable = PageRequest.of(page - 1, PaginationLimitConstants.SITE_SEARCH_LIMIT);
+        Specification<SiteVersionEntity> spec = siteVersionSpecifications.customSearchAndLatestApproved(siteSearch);
+
+        Page<SiteVersionEntity> siteVersionEntities = siteVersionRepository.findAll(spec, pageable);
+
+        return pageMapper.toPageDto(siteVersionEntities.map(SiteBasicInfoRspnDto::new));
     }
 }

@@ -34,6 +34,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
     private final SiteReactionRepository siteReactionRepository;
     private final RequestUtils requestUtils;
     private final SiteMediaRepository siteMediaRepository;
+    private final SiteReviewRepository siteReviewRepository;
 
     @Override
     @Transactional
@@ -95,6 +96,15 @@ public class SiteVersionServiceImp implements SiteVersionService {
                         .build())
                 .toList());
 
+        // 6. Get rating
+        resndBody.setAverageRating(siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersionInfos.getSiteId()));
+        resndBody.setTotalRating(siteReviewRepository.countBySiteId(siteVersionInfos.getSiteId()));
+        resndBody.setFiveStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 5));
+        resndBody.setFourStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 4));
+        resndBody.setThreeStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 3));
+        resndBody.setTwoStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 2));
+        resndBody.setOneStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 1));
+
         return resndBody;
     }
 
@@ -123,6 +133,9 @@ public class SiteVersionServiceImp implements SiteVersionService {
                             .build())
                     .toList();
 
+            Double averageRating = siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersion.getSiteId());
+            Integer totalRating = siteReviewRepository.countBySiteId(siteVersion.getSiteId());
+
             MapRepresentationDto mapRepresentationDto = MapRepresentationDto.builder()
                     .siteId(siteVersion.getSiteId())
                     .siteType(new SiteTypeRspnDto(siteType))
@@ -130,6 +143,8 @@ public class SiteVersionServiceImp implements SiteVersionService {
                     .lat(siteVersion.getLat())
                     .lng(siteVersion.getLng())
                     .medias(medias)
+                    .averageRating(averageRating)
+                    .totalRating(totalRating)
                     .build();
             sitesInRange.add(mapRepresentationDto);
         }

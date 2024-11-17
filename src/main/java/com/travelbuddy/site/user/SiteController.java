@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelbuddy.common.constants.MediaTypeEnum;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.utils.FilenameUtils;
-import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
-import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
-import com.travelbuddy.persistence.domain.dto.site.SiteUpdateRqstDto;
+import com.travelbuddy.persistence.domain.dto.site.*;
 import com.travelbuddy.persistence.domain.entity.FileEntity;
 import com.travelbuddy.persistence.domain.entity.SiteEntity;
 import com.travelbuddy.persistence.domain.entity.SiteMediaEntity;
@@ -24,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -217,8 +214,8 @@ public class SiteController {
         return ResponseEntity.created(URI.create("/api/sites/version=" + newSiteVersionId)).build();
     }
 
-    @GetMapping("/version={siteVersionId}")
-    public ResponseEntity<Object> getSiteVersion(@PathVariable int siteVersionId) {
+    @GetMapping
+    public ResponseEntity<Object> getSiteVersion(@RequestParam(name = "version" , required = true) int siteVersionId) {
         // 1. Get the site representation
         SiteRepresentationDto siteRepresentationDto = siteVersionService.getSiteVersionView(siteVersionId);
 
@@ -252,4 +249,11 @@ public class SiteController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchSites(@RequestParam(name = "q", required = false, defaultValue = "") String siteSearch,
+                                             @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+        PageDto<SiteBasicInfoRspnDto> siteSearchRspnDto = siteService.searchSites(siteSearch, page);
+
+        return ResponseEntity.ok(siteSearchRspnDto);
+    }
 }

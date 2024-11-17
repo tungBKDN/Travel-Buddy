@@ -1,5 +1,6 @@
 package com.travelbuddy.site.user;
 
+import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.persistence.domain.dto.site.*;
 import com.travelbuddy.persistence.domain.entity.SiteMediaEntity;
 
@@ -13,4 +14,6 @@ public interface SiteService {
     void likeSite(int siteId);
 
     void dislikeSite(int siteId);
+
+    PageDto<SiteBasicInfoRspnDto> searchSites(String siteSearch, int page);
 }
