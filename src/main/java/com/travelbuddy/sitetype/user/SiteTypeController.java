@@ -30,8 +30,7 @@ public class SiteTypeController {
                 .orElseThrow(() -> new NotFoundException("Site type not found"));
         List<GroupedSiteServicesRspnDto> groupedSiteServices = siteTypeService.getAssociatedServiceGroups(siteTypeId);
         ServiceByTypeRspnDto servicesByTypeRspnDto = new ServiceByTypeRspnDto();
-        SiteTypeRspnDto siteTypeRspnDto = new SiteTypeRspnDto();
-        siteTypeRspnDto.mapFromSiteTypeEntity(siteType);
+        SiteTypeRspnDto siteTypeRspnDto = new SiteTypeRspnDto(siteType);
         servicesByTypeRspnDto.setSiteType(siteTypeRspnDto);
         servicesByTypeRspnDto.setGroupedSiteServices(groupedSiteServices);
         return ResponseEntity.ok(servicesByTypeRspnDto);

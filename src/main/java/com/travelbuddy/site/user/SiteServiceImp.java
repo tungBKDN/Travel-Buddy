@@ -1,23 +1,22 @@
 package com.travelbuddy.site.user;
 
+import com.travelbuddy.common.constants.ReactionTypeEnum;
+import com.travelbuddy.common.exception.errorresponse.ForbiddenException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.common.utils.RequestUtils;
 import com.travelbuddy.openningtime.user.OpeningTimeService;
-import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
-import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
-import com.travelbuddy.persistence.domain.dto.site.SiteUpdateRqstDto;
+import com.travelbuddy.persistence.domain.dto.site.*;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
-import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
-import com.travelbuddy.persistence.domain.entity.SiteEntity;
-import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
-import com.travelbuddy.persistence.domain.entity.UserEntity;
+import com.travelbuddy.persistence.domain.entity.*;
 import com.travelbuddy.persistence.repository.*;
 import com.travelbuddy.phonenumber.user.PhoneNumberService;
 import com.travelbuddy.service.admin.ServiceService;
 import com.travelbuddy.siteapproval.admin.SiteApprovalService;
 import com.travelbuddy.siteversion.user.SiteVersionService;
-import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
+import com.travelbuddy.upload.cloud.StorageExecutorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,24 +36,20 @@ public class SiteServiceImp implements SiteService {
     private final OpeningTimeService openingTimeService;
     private final SiteApprovalService siteApprovalService;
     private final ServiceService serviceService;
+    private final RequestUtils requestUtils;
+    private final SiteReactionRepository siteReactionRepository;
+    private final SiteMediaRepository siteMediaRepository;
+    private final StorageExecutorService storageExecutorService;
 
     @Override
     @Transactional
-    public Integer createSite(Integer ownerId) {
-        SiteEntity site = new SiteEntity();
-        site.setOwnerId(ownerId);
-
-        return siteRepository.save(site).getId();
-    }
-
-    @Override
-    @Transactional
-    public Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto) {
+    public Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto, List<SiteMediaEntity> siteMediaEntities) {
         // 1. Save site entity into database
-        Integer siteId = createSite(siteCreateRqstDto.getOwnerId());
+        SiteEntity siteEntity = siteRepository.save(SiteEntity.builder().ownerId(siteCreateRqstDto.getOwnerId()).build());
+        Integer siteId = siteEntity.getId();
 
         // 2. Save site version entity into database
-        Integer siteVersionID = siteVersionService.createSiteVersion(siteCreateRqstDto, siteId);
+        int siteVersionID = siteVersionService.createSiteVersion(siteCreateRqstDto, siteId);
 
         // 3. Save phone numbers into database
         phoneNumberService.addPhoneNumbers(siteCreateRqstDto.getPhoneNumbers(), siteVersionID);
@@ -68,12 +63,27 @@ public class SiteServiceImp implements SiteService {
         // 6. Save services into database
         if (siteCreateRqstDto.getServices() != null)
             serviceService.createServicesBySiteVersion(siteVersionID, siteCreateRqstDto.getServices());
+
+        // 7. Save site media
+        for (SiteMediaEntity siteMediaEntity : siteMediaEntities) {
+            siteMediaEntity.setSite(siteEntity);
+        }
+        siteMediaRepository.saveAll(siteMediaEntities);
+
         return siteId;
     }
 
     @Override
     @Transactional
-    public Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto) {
+    public Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto, List<SiteMediaEntity> siteMediaEntities) {
+        SiteEntity siteEntity = siteRepository.findById(siteUpdateRqstDto.getSiteId())
+                .orElseThrow(() -> new NotFoundException("Site not found"));
+
+        int userId = requestUtils.getUserIdCurrentRequest();
+        if (siteEntity.getOwnerId() != userId) {
+            throw new ForbiddenException("You are not allowed to update this site");
+        }
+
         // 1. Save version entity into database
         Integer siteVersionId = siteVersionService.updateSiteVersion(siteUpdateRqstDto);
 
@@ -90,6 +100,38 @@ public class SiteServiceImp implements SiteService {
         if (siteUpdateRqstDto.getNewServices() != null)
             serviceService.createServicesBySiteVersion(siteVersionId, siteUpdateRqstDto.getNewServices());
 
+        // 6. Update site media
+        List<String> mediaIdsToDelete = new ArrayList<>();
+
+        siteEntity.getSiteMedias().removeIf(siteMediaEntity -> {
+            if (!siteUpdateRqstDto.getMediaIds().contains(siteMediaEntity.getId())) {
+                mediaIdsToDelete.add(siteMediaEntity.getMedia().getId());
+                return true;
+            }
+            return false;
+        });
+
+        storageExecutorService.deleteFiles(mediaIdsToDelete);
+
+        siteMediaEntities.forEach(siteMediaEntity -> siteMediaEntity.setSite(siteEntity));
+
+        siteEntity.getSiteMedias().addAll(siteMediaEntities);
+
+        siteRepository.save(siteEntity);
+
         return siteVersionId;
     }
+
+    @Override
+    public SiteBasicInfoRspnDto getSiteBasicRepresentation(Integer siteId) {
+        // 1. Get the latest approved version
+        Optional<Integer> latestApprovedVersionId = siteApprovalRepository.findLatestApprovedSiteVersionIdBySiteId(siteId);
+        if (latestApprovedVersionId.isEmpty()) {
+            throw new NotFoundException("No approved version found for site with id: " + siteId);
+        }
+
+        // 2. Get the site representation
+        return siteVersionService.getSiteVersionBasicView(latestApprovedVersionId.get());
+    }
+
 }

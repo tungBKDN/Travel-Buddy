@@ -47,3 +47,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('services_id_seq', (SELECT MAX(id) FROM services));

@@ -1,28 +1,17 @@
 package com.travelbuddy.persistence.domain.dto.site;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
-import com.travelbuddy.persistence.domain.entity.*;
+import com.travelbuddy.persistence.domain.entity.OpeningTimeEntity;
+import com.travelbuddy.persistence.domain.entity.SiteVersionEntity;
+import com.travelbuddy.persistence.domain.entity.UserEntity;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.Hibernate;
 
-import javax.swing.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
 @Data
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class SiteRepresentationDto implements Serializable {
-    // Site informations
+public class SiteBasicInfoRspnDto {
     private Integer siteId;
     private Integer siteVersionId;
 
@@ -43,11 +32,6 @@ public class SiteRepresentationDto implements Serializable {
     private String website;
     private String createdAt;
     private SiteTypeRspnDto siteType;
-    private List<String> phoneNumbers;
-    private List<GroupedSiteServicesRspnDto> groupedServices;
-    private List<OpeningTimeRepresentationDto> openingTimes;
-
-    private List<MediaRspnDto> medias;
 
     public void mapSiteVersion(SiteVersionEntity siteVersion) {
         this.siteId = siteVersion.getSiteId();
@@ -69,13 +53,8 @@ public class SiteRepresentationDto implements Serializable {
         this.ownerProfilePicture = null;
     }
 
-    public void mapView(SiteVersionEntity siteVersion, UserEntity userEntity, List<GroupedSiteServicesRspnDto> services, List<String> phoneNumbers, List<OpeningTimeEntity> openingTimes) {
+    public void mapView(SiteVersionEntity siteVersion, UserEntity userEntity) {
         mapSiteVersion(siteVersion);
         mapUser(userEntity);
-        this.groupedServices = services;
-        this.phoneNumbers = phoneNumbers;
-        this.openingTimes = openingTimes.stream()
-                .map(OpeningTimeRepresentationDto::new)
-                .toList();
     }
 }

@@ -47,3 +47,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('services_by_site_versions_id_seq', (SELECT MAX(id) FROM services_by_site_versions));
