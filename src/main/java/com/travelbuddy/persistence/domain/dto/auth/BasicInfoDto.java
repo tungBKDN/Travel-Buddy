@@ -9,8 +9,8 @@ import lombok.Setter;
 @Builder
 public class BasicInfoDto {
     private Integer id;
-    private String fullName;
     private String email;
-    private String username;
+    private String nickname;
+    private String fullName;
     private String avatar;
 }
