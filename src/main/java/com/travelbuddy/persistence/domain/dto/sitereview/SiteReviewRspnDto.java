@@ -20,5 +20,5 @@ public class SiteReviewRspnDto {
     private Integer likeCount;
     private Integer dislikeCount;
     private String userReaction;
-    private LocalDate arrivalDate;
+    private String arrivalDate;
 }

@@ -92,7 +92,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
                         .id(siteMediaEntity.getId())
                         .url(siteMediaEntity.getMedia().getUrl())
                         .mediaType(siteMediaEntity.getMediaType())
-                        .createdAt(siteMediaEntity.getMedia().getCreatedAt())
+                        .createdAt(String.valueOf(siteMediaEntity.getMedia().getCreatedAt()))
                         .build())
                 .toList());
 
@@ -129,7 +129,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
                             .id(siteMediaEntity.getId())
                             .url(siteMediaEntity.getMedia().getUrl())
                             .mediaType(siteMediaEntity.getMediaType())
-                            .createdAt(siteMediaEntity.getMedia().getCreatedAt())
+                            .createdAt(String.valueOf(siteMediaEntity.getMedia().getCreatedAt()))
                             .build())
                     .toList();
 
@@ -193,11 +193,20 @@ public class SiteVersionServiceImp implements SiteVersionService {
         resndBody.setLikeCount(siteReactionRepository.countBySiteIdAndReactionType(siteVersionInfos.getSiteId(), ReactionTypeEnum.LIKE.name()));
         resndBody.setDislikeCount(siteReactionRepository.countBySiteIdAndReactionType(siteVersionInfos.getSiteId(), ReactionTypeEnum.DISLIKE.name()));
 
+        // 5. Get rating
+        resndBody.setAverageRating(siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersionInfos.getSiteId()));
+        resndBody.setTotalRating(siteReviewRepository.countBySiteId(siteVersionInfos.getSiteId()));
+
         return resndBody;
     }
 
     private String getReactionType(int siteId) {
-        int userId = requestUtils.getUserIdCurrentRequest();
+        int userId;
+        try {
+            userId = requestUtils.getUserIdCurrentRequest();
+        } catch (Exception e) {
+            return null;
+        }
         SiteReactionEntity siteReactionEntity = siteReactionRepository.findByUserIdAndSiteId(userId, siteId).orElse(null);
         if (siteReactionEntity == null) {
             return null;

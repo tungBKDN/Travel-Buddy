@@ -11,12 +11,12 @@ import java.time.LocalTime;
 @Setter
 public class OpeningTimeRepresentationDto {
     private DayOfWeekEnum dayOfWeek;
-    private LocalTime openTime;
-    private LocalTime closeTime;
+    private String openTime;
+    private String closeTime;
 
     public OpeningTimeRepresentationDto(OpeningTimeEntity openingTimeEntity) {
         this.dayOfWeek = openingTimeEntity.getDayOfWeek();
-        this.openTime = openingTimeEntity.getOpenTime();
-        this.closeTime = openingTimeEntity.getCloseTime();
+        this.openTime = String.valueOf(openingTimeEntity.getOpenTime());
+        this.closeTime = String.valueOf(openingTimeEntity.getCloseTime());
     }
 }

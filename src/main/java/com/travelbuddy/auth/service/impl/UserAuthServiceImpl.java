@@ -73,7 +73,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         return LoginRspnDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .basicInfo(userMapper.toBasicInfoDto(user))
+                .userInfo(userMapper.toUserDetailRspnDto(user))
                 .build();
     }
 

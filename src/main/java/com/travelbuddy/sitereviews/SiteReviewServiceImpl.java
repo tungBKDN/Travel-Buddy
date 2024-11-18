@@ -1,6 +1,7 @@
 package com.travelbuddy.sitereviews;
 
 import com.travelbuddy.common.constants.ReactionTypeEnum;
+import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.ForbiddenException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.mapper.PageMapper;
@@ -48,6 +49,13 @@ public class SiteReviewServiceImpl implements SiteReviewService {
     @Override
     public void createSiteReview(SiteReviewCreateRqstDto siteReviewCreateRqstDto, List<ReviewMediaEntity> reviewMediaEntities) {
         int userId = requestUtils.getUserIdCurrentRequest();
+
+        boolean isReviewExists = siteReviewRepository.existsBySiteIdAndUserId(siteReviewCreateRqstDto.getSiteId(), userId);
+        if (isReviewExists) {
+            reviewMediaEntities.forEach(reviewMediaEntity -> storageExecutorService.deleteFile(reviewMediaEntity.getMedia().getId()));
+
+            throw new DataAlreadyExistsException("You have already reviewed this site");
+        }
 
         SiteReviewEntity siteReviewEntity = SiteReviewEntity.builder()
                 .siteId(siteReviewCreateRqstDto.getSiteId())

@@ -8,7 +8,6 @@ import java.util.List;
 @Getter
 @Setter
 public class SiteCreateRqstDto {
-    private Integer ownerId;
     private String siteName;
     private double lat;
     private double lng;
