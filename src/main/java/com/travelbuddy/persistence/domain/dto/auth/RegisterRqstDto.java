@@ -12,6 +12,9 @@ public class RegisterRqstDto {
     @Email(message = "Invalid email")
     private String email;
 
+    @NotBlank(message = "Nickname is required")
+    private String nickname;
+
     @NotBlank(message = "Full name is required")
     private String fullName;
 

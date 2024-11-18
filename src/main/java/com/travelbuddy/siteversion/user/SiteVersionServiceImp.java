@@ -1,13 +1,14 @@
 package com.travelbuddy.siteversion.user;
 
+import com.travelbuddy.common.constants.ReactionTypeEnum;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
-import com.travelbuddy.persistence.domain.dto.site.MapRepresentationDto;
-import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
-import com.travelbuddy.persistence.domain.dto.site.SiteUpdateRqstDto;
+import com.travelbuddy.common.utils.RequestUtils;
+import com.travelbuddy.persistence.domain.dto.site.*;
+import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
+import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
 import com.travelbuddy.persistence.repository.*;
-import com.travelbuddy.persistence.domain.dto.site.SiteCreateRqstDto;
 import com.travelbuddy.service.admin.ServiceService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +31,14 @@ public class SiteVersionServiceImp implements SiteVersionService {
     private final PhoneNumberRepository phoneNumberRepository;
     private final OpeningTimeRepository openingTimeRepository;
     private final SiteTypeRepository siteTypeRepository;
+    private final SiteReactionRepository siteReactionRepository;
+    private final RequestUtils requestUtils;
+    private final SiteMediaRepository siteMediaRepository;
+    private final SiteReviewRepository siteReviewRepository;
 
     @Override
     @Transactional
-    public Integer createSiteVersion(SiteCreateRqstDto siteCreateRqstDto, Integer siteId) {
+    public int createSiteVersion(SiteCreateRqstDto siteCreateRqstDto, int siteId) {
         SiteVersionEntity siteVersion = SiteVersionEntity.builder()
                 .siteName(siteCreateRqstDto.getSiteName())
                 .lat(siteCreateRqstDto.getLat())
@@ -74,6 +79,32 @@ public class SiteVersionServiceImp implements SiteVersionService {
         // 3. Get support services
         List<GroupedSiteServicesRspnDto> groupedServices = serviceService.getGroupedSiteServices(siteVersionId);
         resndBody.mapView(siteVersionInfos, userInfo, groupedServices, phoneNumbers, openingTimes);
+
+        // 4. Get reactions
+        resndBody.setUserReaction(getReactionType(siteVersionInfos.getSiteId()));
+        resndBody.setLikeCount(siteReactionRepository.countBySiteIdAndReactionType(siteVersionInfos.getSiteId(), ReactionTypeEnum.LIKE.name()));
+        resndBody.setDislikeCount(siteReactionRepository.countBySiteIdAndReactionType(siteVersionInfos.getSiteId(), ReactionTypeEnum.DISLIKE.name()));
+
+        // 5. Get medias
+        List<SiteMediaEntity> siteMediaEntities = siteMediaRepository.findAllBySiteId(siteVersionInfos.getSiteId());
+        resndBody.setMedias(siteMediaEntities.stream()
+                .map(siteMediaEntity -> MediaRspnDto.builder()
+                        .id(siteMediaEntity.getId())
+                        .url(siteMediaEntity.getMedia().getUrl())
+                        .mediaType(siteMediaEntity.getMediaType())
+                        .createdAt(siteMediaEntity.getMedia().getCreatedAt())
+                        .build())
+                .toList());
+
+        // 6. Get rating
+        resndBody.setAverageRating(siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersionInfos.getSiteId()));
+        resndBody.setTotalRating(siteReviewRepository.countBySiteId(siteVersionInfos.getSiteId()));
+        resndBody.setFiveStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 5));
+        resndBody.setFourStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 4));
+        resndBody.setThreeStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 3));
+        resndBody.setTwoStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 2));
+        resndBody.setOneStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 1));
+
         return resndBody;
     }
 
@@ -91,7 +122,30 @@ public class SiteVersionServiceImp implements SiteVersionService {
         for (SiteVersionEntity siteVersion : siteVersions) {
             SiteTypeEntity siteType = siteTypeRepository.findById(siteVersion.getTypeId())
                     .orElseThrow(() -> new NotFoundException("Site type not found"));
-            MapRepresentationDto mapRepresentationDto = new MapRepresentationDto(siteVersion.getId(), siteType, siteVersion.getSiteName(), siteVersion.getLat(), siteVersion.getLng());
+
+            List<SiteMediaEntity> siteMediaEntities = siteMediaRepository.findAllBySiteId(siteVersion.getSiteId());
+            List<MediaRspnDto> medias = siteMediaEntities.stream()
+                    .map(siteMediaEntity -> MediaRspnDto.builder()
+                            .id(siteMediaEntity.getId())
+                            .url(siteMediaEntity.getMedia().getUrl())
+                            .mediaType(siteMediaEntity.getMediaType())
+                            .createdAt(siteMediaEntity.getMedia().getCreatedAt())
+                            .build())
+                    .toList();
+
+            Double averageRating = siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersion.getSiteId());
+            Integer totalRating = siteReviewRepository.countBySiteId(siteVersion.getSiteId());
+
+            MapRepresentationDto mapRepresentationDto = MapRepresentationDto.builder()
+                    .siteId(siteVersion.getSiteId())
+                    .siteType(new SiteTypeRspnDto(siteType))
+                    .name(siteVersion.getSiteName())
+                    .lat(siteVersion.getLat())
+                    .lng(siteVersion.getLng())
+                    .medias(medias)
+                    .averageRating(averageRating)
+                    .totalRating(totalRating)
+                    .build();
             sitesInRange.add(mapRepresentationDto);
         }
         return sitesInRange;
@@ -114,5 +168,40 @@ public class SiteVersionServiceImp implements SiteVersionService {
                 .siteId(siteUpdateRqstDto.getSiteId())
                 .build();
         return siteVersionRepository.save(siteVersion).getId();
+    }
+
+    @Override
+    public SiteBasicInfoRspnDto getSiteVersionBasicView(Integer siteVersionId) {
+        SiteBasicInfoRspnDto resndBody = new SiteBasicInfoRspnDto();
+        // 1. Get basic infor - siteVersion
+        SiteVersionEntity siteVersionInfos = siteVersionRepository.findById(siteVersionId)
+                .orElseThrow(() -> new NotFoundException("Site version not found"));
+
+        // 2. Get user basic information
+        Integer userId = siteRepository.findById(siteVersionInfos.getSiteId())
+                .orElseThrow(() -> new NotFoundException("Site not found"))
+                .getOwnerId();
+
+        UserEntity userInfo = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        // 3. Get support services
+        resndBody.mapView(siteVersionInfos, userInfo);
+
+        // 4. Get reactions
+        resndBody.setUserReaction(getReactionType(siteVersionInfos.getSiteId()));
+        resndBody.setLikeCount(siteReactionRepository.countBySiteIdAndReactionType(siteVersionInfos.getSiteId(), ReactionTypeEnum.LIKE.name()));
+        resndBody.setDislikeCount(siteReactionRepository.countBySiteIdAndReactionType(siteVersionInfos.getSiteId(), ReactionTypeEnum.DISLIKE.name()));
+
+        return resndBody;
+    }
+
+    private String getReactionType(int siteId) {
+        int userId = requestUtils.getUserIdCurrentRequest();
+        SiteReactionEntity siteReactionEntity = siteReactionRepository.findByUserIdAndSiteId(userId, siteId).orElse(null);
+        if (siteReactionEntity == null) {
+            return null;
+        }
+        return siteReactionEntity.getReactionType();
     }
 }

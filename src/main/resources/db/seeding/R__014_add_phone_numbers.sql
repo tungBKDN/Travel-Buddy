@@ -8,3 +8,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('phone_numbers_id_seq', (SELECT MAX(id) FROM phone_numbers));

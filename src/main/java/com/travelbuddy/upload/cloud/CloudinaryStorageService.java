@@ -1,71 +1,85 @@
 package com.travelbuddy.upload.cloud;
 
-import com.travelbuddy.upload.cloud.dto.UploadDto;
-import com.travelbuddy.upload.cloud.dto.UploadedFileDto;
+import com.travelbuddy.persistence.domain.entity.FileEntity;
+import com.travelbuddy.persistence.repository.FileRepository;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
+import com.travelbuddy.upload.cloud.dto.FileUploadRqstDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @Primary
 @Slf4j
+@Transactional
 public class CloudinaryStorageService implements StorageService {
     private final long maxAgeMs;
 
-    private final TemporaryFileRepository temporaryFileRepository;
+    private final FileRepository fileRepository;
 
     private final CloudinaryProxyService cloudinaryProxyService;
 
     public CloudinaryStorageService(@Value("${upload.cloudinary.temporary-file.max-age-ms}") long maxAgeMs,
-                                    TemporaryFileRepository temporaryFileRepository,
+                                    FileRepository fileRepository,
                                     CloudinaryProxyService cloudinaryProxyService) {
         this.maxAgeMs = maxAgeMs;
-        this.temporaryFileRepository = temporaryFileRepository;
+        this.fileRepository = fileRepository;
         this.cloudinaryProxyService = cloudinaryProxyService;
     }
 
     @Override
-    public UploadedFileDto uploadFile(UploadDto uploadDto) {
-        return cloudinaryProxyService.uploadFile(uploadDto);
+    public FileRspnDto uploadFile(FileUploadRqstDto fileUploadRqstDto) {
+        return cloudinaryProxyService.uploadFile(fileUploadRqstDto);
     }
 
     @Override
-    public UploadedFileDto uploadFileTemp(UploadDto uploadDto) {
-        UploadedFileDto uploadedFileDto = cloudinaryProxyService.uploadFile(uploadDto);
+    public FileRspnDto uploadFileTemp(FileUploadRqstDto fileUploadRqstDto) {
 
-        TemporaryFile temporaryFile = new TemporaryFile();
-        temporaryFile.setId(uploadedFileDto.getId());
-        temporaryFile.setUploadDate(new Date());
-        temporaryFileRepository.save(temporaryFile);
+//        FileEntity fileEntity = new FileEntity();
+//        fileEntity.setId(fileRspnDto.getId());
+//        fileEntity.setUrl(fileRspnDto.getUrl());
+//        fileRepository.saveAndFlush(fileEntity);
 
-        return uploadedFileDto;
+        return cloudinaryProxyService.uploadFile(fileUploadRqstDto);
     }
 
     @Override
-    public UploadedFileDto getFileData(String fileId) {
+    public FileEntity uploadFileEntity(FileUploadRqstDto fileUploadRqstDto) {
+        FileRspnDto fileRspnDto = cloudinaryProxyService.uploadFile(fileUploadRqstDto);
+
+        FileEntity fileEntity = new FileEntity();
+        fileEntity.setId(fileRspnDto.getId());
+        fileEntity.setUrl(fileRspnDto.getUrl());
+        fileRepository.saveAndFlush(fileEntity);
+
+        return fileEntity;
+    }
+
+    @Override
+    public FileRspnDto getFileData(String fileId) {
         return cloudinaryProxyService.getFileData(fileId);
     }
 
     @Override
     public void deleteFile(String fileId) {
         cloudinaryProxyService.deleteFile(fileId);
-        temporaryFileRepository.deleteById(fileId);
     }
 
     @Override
     public void deleteFiles(List<String> fileIds) {
         cloudinaryProxyService.deleteFiles(fileIds);
-        temporaryFileRepository.deleteAllById(fileIds);
     }
 
     @Override
     public void makeFilePermanent(String fileId) {
-        temporaryFileRepository.deleteById(fileId);
+        fileRepository.deleteById(fileId);
     }
 
     @Scheduled(fixedRateString = "${upload.cloudinary.temporary-file.delete-interval-ms}",
@@ -73,11 +87,11 @@ public class CloudinaryStorageService implements StorageService {
     private void deleteTemporaryFiles() {
         log.info("Deleting expired temporary files");
 
-        Date maxAgeDate = new Date(System.currentTimeMillis() - maxAgeMs);
-        List<TemporaryFile> temporaryFiles = temporaryFileRepository.findAllByUploadDateBefore(maxAgeDate);
-        cloudinaryProxyService.deleteFiles(temporaryFiles.stream().map(TemporaryFile::getId).toList());
-        temporaryFileRepository.deleteAll(temporaryFiles);
+        LocalDateTime maxAgeLocalDateTime = LocalDateTime.now().minusNanos(maxAgeMs * 1_000_000);
+        List<FileEntity> fileEntities = fileRepository.findAllByCreatedAtBefore(maxAgeLocalDateTime);
+        cloudinaryProxyService.deleteFiles(fileEntities.stream().map(FileEntity::getId).toList());
+        fileRepository.deleteAll(fileEntities);
 
-        log.info("Deleted {} expired temporary files", temporaryFiles.size());
+        log.info("Deleted {} expired temporary files", fileEntities.size());
     }
 }

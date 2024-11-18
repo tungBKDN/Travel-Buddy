@@ -8,5 +8,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface AdminMapper {
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "nickname", source = "nickname")
+    @Mapping(target = "fullName", source = "fullName")
+    @Mapping(target = "avatar", source = "avatar.url")
     BasicInfoDto toBasicInfoDto(AdminEntity adminEntity);
 }

@@ -42,4 +42,12 @@ public class SiteVersionEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_id", insertable = false, updatable = false)
     private SiteTypeEntity siteType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "site_id", insertable = false, updatable = false)
+    private SiteEntity siteEntity;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id", referencedColumnName = "site_version_id")
+    private SiteApprovalEntity siteApprovalEntity;
 }

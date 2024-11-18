@@ -1,13 +1,11 @@
 package com.travelbuddy.auth.controller;
 
-import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
 import com.travelbuddy.auth.service.TokenStoreService;
 import com.travelbuddy.auth.service.UserAuthService;
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.InvaidTokenException;
 import com.travelbuddy.persistence.domain.dto.auth.*;
 import com.travelbuddy.persistence.domain.entity.TokenStoreEntity;
-import com.travelbuddy.common.exception.errorresponse.ErrorResponse;
 import com.travelbuddy.user.UserService;
 import jakarta.validation.Valid;
 import java.util.Optional;
@@ -53,6 +51,12 @@ public class UserAuthController {
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRqstDto resetPasswordRqstDto) {
         userAuthService.resetPassword(resetPasswordRqstDto);
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/validate-reset-password")
+    public ResponseEntity<Object> validateResetPassword(@RequestBody @Valid VerificationOtpRqstDto verificationOtpRqstDto) {
+        userAuthService.validateResetPassword(verificationOtpRqstDto);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/reset-password")

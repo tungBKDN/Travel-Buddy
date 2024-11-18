@@ -9,3 +9,6 @@ $$
         END IF;
     END;
 $$;
+
+-- Reset sequence
+SELECT setval('service_groups_by_types_id_seq', (SELECT MAX(id) FROM service_groups_by_types));

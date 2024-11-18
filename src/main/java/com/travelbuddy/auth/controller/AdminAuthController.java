@@ -3,8 +3,6 @@ package com.travelbuddy.auth.controller;
 import com.travelbuddy.auth.service.AdminAuthService;
 import com.travelbuddy.persistence.domain.dto.auth.LoginRqstDto;
 import com.travelbuddy.persistence.domain.dto.auth.LoginRspnDto;
-import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
-import com.travelbuddy.common.exception.errorresponse.ErrorResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
