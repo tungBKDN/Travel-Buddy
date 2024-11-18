@@ -11,5 +11,5 @@ public class MediaRspnDto {
     private Integer id;
     private String url;
     private String mediaType;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

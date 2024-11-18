@@ -19,6 +19,7 @@ import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewRspnDto;
 import com.travelbuddy.sitereviews.SiteReviewService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -252,7 +253,19 @@ public class SiteController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchSites(@RequestParam(name = "q", required = false, defaultValue = "") String siteSearch,
                                              @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+
+        if (StringUtils.isBlank(siteSearch)) {
+            return ResponseEntity.ok(List.of());
+        }
+
         PageDto<SiteBasicInfoRspnDto> siteSearchRspnDto = siteService.searchSites(siteSearch, page);
+
+        return ResponseEntity.ok(siteSearchRspnDto);
+    }
+
+    @GetMapping("/discover")
+    public ResponseEntity<Object> discoverSites(@RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+        PageDto<SiteBasicInfoRspnDto> siteSearchRspnDto = siteService.discoverSites(page);
 
         return ResponseEntity.ok(siteSearchRspnDto);
     }

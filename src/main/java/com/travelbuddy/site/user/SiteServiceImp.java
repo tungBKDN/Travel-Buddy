@@ -52,7 +52,8 @@ public class SiteServiceImp implements SiteService {
     @Transactional
     public Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto, List<SiteMediaEntity> siteMediaEntities) {
         // 1. Save site entity into database
-        SiteEntity siteEntity = siteRepository.save(SiteEntity.builder().ownerId(siteCreateRqstDto.getOwnerId()).build());
+        int userId = requestUtils.getUserIdCurrentRequest();
+        SiteEntity siteEntity = siteRepository.save(SiteEntity.builder().ownerId(userId).build());
         Integer siteId = siteEntity.getId();
 
         // 2. Save site version entity into database
@@ -193,6 +194,16 @@ public class SiteServiceImp implements SiteService {
     public PageDto<SiteBasicInfoRspnDto> searchSites(String siteSearch, int page) {
         Pageable pageable = PageRequest.of(page - 1, PaginationLimitConstants.SITE_SEARCH_LIMIT);
         Specification<SiteVersionEntity> spec = siteVersionSpecifications.customSearchAndLatestApproved(siteSearch);
+
+        Page<SiteVersionEntity> siteVersionEntities = siteVersionRepository.findAll(spec, pageable);
+
+        return pageMapper.toPageDto(siteVersionEntities.map(SiteBasicInfoRspnDto::new));
+    }
+
+    @Override
+    public PageDto<SiteBasicInfoRspnDto> discoverSites(int page) {
+        Pageable pageable = PageRequest.of(page - 1, PaginationLimitConstants.SITE_DISCOVER_LIMIT);
+        Specification<SiteVersionEntity> spec = siteVersionSpecifications.customSearchAndLatestApproved(null);
 
         Page<SiteVersionEntity> siteVersionEntities = siteVersionRepository.findAll(spec, pageable);
 

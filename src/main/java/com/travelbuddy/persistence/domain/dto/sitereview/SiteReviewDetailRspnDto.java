@@ -12,6 +12,6 @@ public class SiteReviewDetailRspnDto {
     private Integer id;
     private Integer generalRating;
     private String comment;
-    private LocalDate arrivalDate;
+    private String arrivalDate;
     private List<MediaRspnDto> medias;
 }

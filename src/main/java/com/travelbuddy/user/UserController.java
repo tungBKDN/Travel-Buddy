@@ -1,5 +1,7 @@
 package com.travelbuddy.user;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.common.utils.FilenameUtils;
 import com.travelbuddy.common.utils.RequestUtils;
@@ -29,6 +31,7 @@ public class UserController {
     private final UserService userService;
     private final RequestUtils requestUtils;
     private final StorageService storageService;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/detail")
     public ResponseEntity<UserDetailRspnDto> getUserDetail() {
@@ -70,7 +73,7 @@ public class UserController {
     }
 
     @PutMapping("/avatar")
-    public ResponseEntity<Void> updateAvatar(@RequestParam("avatar") MultipartFile avatar) throws IOException {
+    public ResponseEntity<Object> updateAvatar(@RequestParam("avatar") MultipartFile avatar) throws IOException {
         if (ObjectUtils.isEmpty(avatar)) {
             throw new IllegalArgumentException("Avatar is required");
         }
@@ -93,7 +96,10 @@ public class UserController {
 
         userService.updateAvatar(userId, uploadedFile);
 
-        return ResponseEntity.noContent().build();
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("image", uploadedFile.getUrl());
+
+        return ResponseEntity.ok(objectNode);
     }
 
     @PutMapping("/unactivated")
@@ -114,6 +120,10 @@ public class UserController {
     @GetMapping("/search")
     public ResponseEntity<Object> searchUsers(@RequestParam(name = "q", required = false, defaultValue = "") String userSearch,
                                                                @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+        if (StringUtils.isBlank(userSearch)) {
+            return ResponseEntity.ok(List.of());
+        }
+
         PageDto<UserSearchRspnDto> userSearchRspnDto = userService.searchUsers(userSearch, page);
 
         return ResponseEntity.ok(userSearchRspnDto);

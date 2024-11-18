@@ -1,6 +1,7 @@
 package com.travelbuddy.auth.controller;
 
 import com.travelbuddy.auth.service.AdminAuthService;
+import com.travelbuddy.persistence.domain.dto.auth.AdminLoginRspnDto;
 import com.travelbuddy.persistence.domain.dto.auth.LoginRqstDto;
 import com.travelbuddy.persistence.domain.dto.auth.LoginRspnDto;
 import jakarta.validation.Valid;
@@ -19,7 +20,7 @@ public class AdminAuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> postLogin(@RequestBody @Valid LoginRqstDto loginRqstDto) {
-        LoginRspnDto loginRspnDto = adminAuthService.login(loginRqstDto);
+        AdminLoginRspnDto loginRspnDto = adminAuthService.login(loginRqstDto);
         return ResponseEntity.ok(loginRspnDto);
     }
 }

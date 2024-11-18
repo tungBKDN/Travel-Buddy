@@ -1,19 +1,17 @@
-package com.travelbuddy.persistence.domain.dto.account.user;
+package com.travelbuddy.persistence.domain.dto.account.admin;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class UserDetailRspnDto {
+public class AdminDetailRspnDto {
     private Integer id;
     private String nickname;
     private String fullName;
     private String email;
     private String gender;
     private String phoneNumber;
-    private String socialUrl;
     private String avatar;
-    private Double score;
     private String createdAt;
 }

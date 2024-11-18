@@ -24,6 +24,7 @@ public interface UserMapper {
     @Mapping(target = "fullName", source = "fullName")
     @Mapping(target = "email", source = "email")
     @Mapping(target = "gender", source = "gender")
+    @Mapping(target = "phoneNumber", source = "phoneNumber")
     @Mapping(target = "socialUrl", source = "socialUrl")
     @Mapping(target = "avatar", source = "avatar.url")
     @Mapping(target = "score", source = "score")
