@@ -73,10 +73,11 @@ public class SiteReviewSpecifications {
 
             // Thêm customScore vào phần ORDER BY
             assert query != null;
+            query.where(postPredicate);
             query.orderBy(criteriaBuilder.desc(caseExpression), criteriaBuilder.desc(customScore));
             query.groupBy(root.get("id")); // Nhóm theo id của review nếu cần
 
-            return postPredicate;
+            return query.getRestriction();
         };
     }
 }

@@ -54,18 +54,13 @@ public class SiteVersionSpecifications {
             Predicate searchPredicate = criteriaBuilder.or(
                     criteriaBuilder.like(
                             criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("siteName"))),
-                            "%" + removeAccents(search.toLowerCase()) + "%"
+                            "%" + removeAccents(StringUtils.lowerCase(search)) + "%"
                     ),
                     criteriaBuilder.like(
                             criteriaBuilder.function("unaccent", String.class, criteriaBuilder.lower(root.get("resolvedAddress"))),
-                            "%" + removeAccents(search.toLowerCase()) + "%"
+                            "%" + removeAccents(StringUtils.lowerCase(search)) + "%"
                     )
             );
-
-            // Biểu thức "priority" để ưu tiên kết quả khớp với tìm kiếm
-            Expression<Integer> priority = criteriaBuilder.<Integer>selectCase()
-                    .when(searchPredicate, 1) // Kết quả khớp với điều kiện tìm kiếm
-                    .otherwise(0); // Không khớp
 
             // Tính toán số sao trung bình
             Expression<Double> averageRating = criteriaBuilder.avg(reviewJoin.get("generalRating"));
@@ -105,22 +100,27 @@ public class SiteVersionSpecifications {
 
             // Thêm điều kiện tìm kiếm và sắp xếp
             if (StringUtils.isNotBlank(search)) {
-                query.orderBy(
-                        criteriaBuilder.desc(priority), // Ưu tiên các kết quả khớp với tìm kiếm
-                        criteriaBuilder.desc(customScore) // Sắp xếp tiếp theo dựa trên customScore
-                );
+                query.where(criteriaBuilder.and(approvedPredicate, latestVersionPredicate, searchPredicate));
             } else {
-                query.orderBy(criteriaBuilder.desc(customScore));
+                query.where(criteriaBuilder.and(approvedPredicate, latestVersionPredicate));
             }
+
+            query.orderBy(criteriaBuilder.desc(customScore));
             query.groupBy(root.get("id"));
 
-            return criteriaBuilder.and(approvedPredicate, latestVersionPredicate);
+            return query.getRestriction();
         };
     }
 
     // Hàm xóa dấu
     private String removeAccents(String s) {
+        if (StringUtils.isBlank(s)) {
+            return "";
+        }
         String normalized = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD);
-        return StringUtils.isBlank(s) ? "" : normalized.replaceAll("\\p{M}", "");
+
+        normalized = normalized.replaceAll("\\p{M}", "");
+        normalized = normalized.replaceAll("đ", "d");
+        return StringUtils.trim(normalized);
     }
 }
