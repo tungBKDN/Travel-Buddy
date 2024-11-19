@@ -9,8 +9,8 @@ import java.util.List;
 public class TravelPlanRspnDto {
     private String name;
     private String description;
-    private LocalDateTime startTime; // yyyyMMdd HH:mm
-    private LocalDateTime endTime; // yyyyMMdd HH:mm
+    private String startTime; // yyyyMMdd HH:mm
+    private String endTime; // yyyyMMdd HH:mm
     private List<TravelPlanSiteRspnDto> sites;
     private List<TravelPlanMemberRspnDto> members;
 }

@@ -7,6 +7,7 @@ import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewDetailRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -56,7 +57,7 @@ public interface SiteReviewMapper {
                         .id(reviewMediaEntity.getId())
                         .url(reviewMediaEntity.getMedia().getUrl())
                         .mediaType(reviewMediaEntity.getMediaType())
-                        .createdAt(reviewMediaEntity.getMedia().getCreatedAt())
+                        .createdAt(String.valueOf(reviewMediaEntity.getMedia().getCreatedAt()))
                         .build())
                 .collect(Collectors.toList());
     }

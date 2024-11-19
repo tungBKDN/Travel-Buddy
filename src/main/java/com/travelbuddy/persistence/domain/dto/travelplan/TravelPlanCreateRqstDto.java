@@ -13,5 +13,4 @@ public class TravelPlanCreateRqstDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String description;
-    private List<Integer> userIds;
 }

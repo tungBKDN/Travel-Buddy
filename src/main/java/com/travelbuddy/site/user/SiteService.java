@@ -16,4 +16,6 @@ public interface SiteService {
     void dislikeSite(int siteId);
 
     PageDto<SiteBasicInfoRspnDto> searchSites(String siteSearch, int page);
+
+    PageDto<SiteBasicInfoRspnDto> discoverSites(int page);
 }

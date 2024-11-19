@@ -74,7 +74,7 @@ public class SiteRepresentationDto implements Serializable {
     public void mapUser(UserEntity userEntity) {
         this.ownerId = userEntity.getId();
         this.ownerUsername = userEntity.getNickname();
-        this.ownerProfilePicture = null;
+        this.ownerProfilePicture = userEntity.getAvatar() != null ? userEntity.getAvatar().getUrl() : null;
     }
 
     public void mapView(SiteVersionEntity siteVersion, UserEntity userEntity, List<GroupedSiteServicesRspnDto> services, List<String> phoneNumbers, List<OpeningTimeEntity> openingTimes) {

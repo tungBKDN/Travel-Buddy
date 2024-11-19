@@ -1,6 +1,7 @@
 package com.travelbuddy.auth.service.impl;
 
 import com.travelbuddy.auth.token.jwt.JWTProcessor;
+import com.travelbuddy.persistence.domain.dto.auth.AdminLoginRspnDto;
 import com.travelbuddy.persistence.domain.entity.AdminEntity;
 import com.travelbuddy.persistence.repository.AdminRepository;
 import com.travelbuddy.auth.service.AdminAuthService;
@@ -38,7 +39,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {
         this.adminMapper = adminMapper;
     }
 
-    public LoginRspnDto login(LoginRqstDto loginRqstDto) {
+    public AdminLoginRspnDto login(LoginRqstDto loginRqstDto) {
         String email = loginRqstDto.getEmail();
         String password = loginRqstDto.getPassword();
 
@@ -71,10 +72,10 @@ public class AdminAuthServiceImpl implements AdminAuthService {
                 .userId(admin.getId())
                 .build());
 
-        return LoginRspnDto.builder()
+        return AdminLoginRspnDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .basicInfo(adminMapper.toBasicInfoDto(admin))
+                .adminInfo(adminMapper.toAdminDetailRspnDto(admin))
                 .build();
     }
 }

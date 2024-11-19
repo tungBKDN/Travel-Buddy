@@ -45,9 +45,8 @@ public class TravelPlanServiceImpl implements TravelPlanService {
                 .endTime(travelPlanCreateRqstDto.getEndTime())
                 .build();
 
-
-        List<UserEntity> userEntities = userRepository.findAllById(travelPlanCreateRqstDto.getUserIds());
-        userEntities.add(0, userEntity);
+        List<UserEntity> userEntities = new ArrayList<>();
+        userEntities.add(userEntity);
 
         travelPlanEntity.setUserEntities(userEntities);
 
@@ -259,8 +258,8 @@ public class TravelPlanServiceImpl implements TravelPlanService {
         TravelPlanRspnDto travelPlanRspnDto = new TravelPlanRspnDto();
         travelPlanRspnDto.setName(travelPlanEntity.getName());
         travelPlanRspnDto.setDescription(travelPlanEntity.getDescription());
-        travelPlanRspnDto.setStartTime(travelPlanEntity.getStartTime());
-        travelPlanRspnDto.setEndTime(travelPlanEntity.getEndTime());
+        travelPlanRspnDto.setStartTime(String.valueOf(travelPlanEntity.getStartTime()));
+        travelPlanRspnDto.setEndTime(String.valueOf(travelPlanEntity.getEndTime()));
 
         List<TravelPlanSiteRspnDto> sites = new ArrayList<>();
         for (SiteEntity siteEntity : travelPlanEntity.getSiteEntities()) {
@@ -270,8 +269,8 @@ public class TravelPlanServiceImpl implements TravelPlanService {
             TravelPlanSiteRspnDto siteRspnDto = new TravelPlanSiteRspnDto();
             siteRspnDto.setName(travelPlanSiteEntity.getName());
             siteRspnDto.setDescription(travelPlanSiteEntity.getDescription());
-            siteRspnDto.setStartTime(travelPlanSiteEntity.getStartTime());
-            siteRspnDto.setEndTime(travelPlanSiteEntity.getEndTime());
+            siteRspnDto.setStartTime(String.valueOf(travelPlanSiteEntity.getStartTime()));
+            siteRspnDto.setEndTime(String.valueOf(travelPlanSiteEntity.getEndTime()));
 
             SiteBasicInfoRspnDto siteBasicInfoRspnDto = siteService.getSiteBasicRepresentation(siteEntity.getId());
             siteRspnDto.setSiteBasicInfoRspnDto(siteBasicInfoRspnDto);
@@ -307,8 +306,8 @@ public class TravelPlanServiceImpl implements TravelPlanService {
                     travelPlanBasicRspnDto.setId(travelPlanEntity.getId());
                     travelPlanBasicRspnDto.setName(travelPlanEntity.getName());
                     travelPlanBasicRspnDto.setDescription(travelPlanEntity.getDescription());
-                    travelPlanBasicRspnDto.setStartTime(travelPlanEntity.getStartTime());
-                    travelPlanBasicRspnDto.setEndTime(travelPlanEntity.getEndTime());
+                    travelPlanBasicRspnDto.setStartTime(String.valueOf(travelPlanEntity.getStartTime()));
+                    travelPlanBasicRspnDto.setEndTime(String.valueOf(travelPlanEntity.getEndTime()));
 
                     return travelPlanBasicRspnDto;
                 })
