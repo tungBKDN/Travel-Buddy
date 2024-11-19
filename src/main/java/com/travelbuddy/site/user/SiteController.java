@@ -124,7 +124,7 @@ public class SiteController {
     }
 
     @GetMapping("/@")
-    public ResponseEntity<Object> getSiteByLocation(@RequestParam double lat, @RequestParam double lng, @RequestParam int degRadius) {
+    public ResponseEntity<Object> getSiteByLocation(@RequestParam double lat, @RequestParam double lng, @RequestParam double degRadius) {
         // Your logic to handle the request using lat and lon
         List<MapRepresentationDto> sitesInRange = siteVersionService.getSitesInRange(lat, lng, degRadius);
         return ResponseEntity.ok(sitesInRange);
@@ -229,7 +229,7 @@ public class SiteController {
         }
         return ResponseEntity.ok(siteRepresentationDto);
     }
-    
+
     @GetMapping("/{siteId}/reviews")
     public ResponseEntity<Object> getSiteReviews(@PathVariable int siteId,
                                                  @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
