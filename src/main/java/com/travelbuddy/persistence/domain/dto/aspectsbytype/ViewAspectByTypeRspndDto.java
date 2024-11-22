@@ -1,14 +1,14 @@
 package com.travelbuddy.persistence.domain.dto.aspectsbytype;
 
 import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-public class ViewAspectByTypeRspnd {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ViewAspectByTypeRspndDto {
     private Integer aspectId;
     private SiteTypeEntity siteType;
     private String aspectName;

@@ -35,4 +35,9 @@ public class SiteTypeController {
         servicesByTypeRspnDto.setGroupedSiteServices(groupedSiteServices);
         return ResponseEntity.ok(servicesByTypeRspnDto);
     }
+
+    @GetMapping("/{siteTypeId}/aspects")
+    public ResponseEntity<Object> getAssociatedAspects(@PathVariable Integer siteTypeId) {
+
+    }
 }

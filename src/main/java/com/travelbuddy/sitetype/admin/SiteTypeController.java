@@ -50,5 +50,4 @@ public class SiteTypeController {
         return ResponseEntity.noContent().build();
     }
 
-
 }
