@@ -49,4 +49,5 @@ public class SiteTypeController {
         siteTypeService.updateSiteType(siteTypeId, siteTypeCreateRqstDto);
         return ResponseEntity.noContent().build();
     }
+
 }

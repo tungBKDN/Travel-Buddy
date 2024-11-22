@@ -1,6 +1,6 @@
 package com.travelbuddy.persistence.domain.dto.aspectsbytype;
 
-import jakarta.validation.constraints.NotBlank;
+import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
 import lombok.*;
 
 @Getter
@@ -8,10 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AspectByTypeCreateRqstDto {
-    @NotBlank
+public class ViewAspectByTypeRspndDto {
+    private Integer aspectId;
+    private SiteTypeEntity siteType;
     private String aspectName;
-
-    @NotBlank
-    private Integer typeId;
 }
