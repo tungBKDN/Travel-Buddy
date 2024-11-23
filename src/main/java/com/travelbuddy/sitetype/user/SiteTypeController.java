@@ -1,6 +1,8 @@
 package com.travelbuddy.sitetype.user;
 
+import com.travelbuddy.aspectsbytype.admin.AspectsByTypeService;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.persistence.domain.dto.aspectsbytype.AspectsByTypeRepresentationRspndDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.ServiceByTypeRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
@@ -22,6 +24,7 @@ public class SiteTypeController {
     private final SiteTypeService siteTypeService;
     private final ServiceService serviceService;
     private final SiteTypeRepository siteTypeRepository;
+    private final AspectsByTypeService aspectsByTypeService;
 
     @GetMapping("/{siteTypeId}/services")
     public ResponseEntity<Object> getAssociatedServices(@PathVariable Integer siteTypeId) {
@@ -38,6 +41,8 @@ public class SiteTypeController {
 
     @GetMapping("/{siteTypeId}/aspects")
     public ResponseEntity<Object> getAssociatedAspects(@PathVariable Integer siteTypeId) {
-
+        List< AspectsByTypeRepresentationRspndDto> aspects = aspectsByTypeService.getAspectsByTypeId(siteTypeId);
+        return ResponseEntity.ok(aspects);
     }
+
 }

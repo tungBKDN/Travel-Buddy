@@ -1,9 +1,14 @@
 package com.travelbuddy.sitetype.admin;
 
+import com.travelbuddy.aspectsbytype.admin.AspectsByTypeService;
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.paging.PageDto;
+import com.travelbuddy.persistence.domain.dto.aspectsbytype.AspectsByTypeCreateRqstDto;
+import com.travelbuddy.persistence.domain.dto.aspectsbytype.AspectsByTypeEditRqstDto;
+import com.travelbuddy.persistence.domain.entity.AspectsByTypeEntity;
 import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
+import com.travelbuddy.persistence.repository.AspectsByTypeRepository;
 import com.travelbuddy.persistence.repository.SiteTypeRepository;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeCreateRqstDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
@@ -14,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +27,8 @@ import java.net.URI;
 public class SiteTypeController {
     private final SiteTypeService siteTypeService;
     private final SiteTypeRepository siteTypeRepository;
+    private final AspectsByTypeService aspectsByTypeService;
+    private final AspectsByTypeRepository aspectsByTypeRepository;
 
     @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
     @PostMapping
@@ -50,4 +58,23 @@ public class SiteTypeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
+    @PostMapping("/aspects")
+    public ResponseEntity<Object> postAspect(@RequestBody @Valid AspectsByTypeCreateRqstDto aspectsByTypeCreateRqstDto) {
+        Integer newAspectByType = aspectsByTypeService.addNewAspect(aspectsByTypeCreateRqstDto.getTypeId(), aspectsByTypeCreateRqstDto.getAspectName());
+        return ResponseEntity.created(URI.create("/admin/api/site-types/aspects/" + newAspectByType)).build();
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
+    @PutMapping("/aspects")
+    public ResponseEntity<Object> updateAspect(@RequestBody @Valid AspectsByTypeEditRqstDto aspectsByTypeEditRqstDto) {
+        AspectsByTypeEntity aspect = aspectsByTypeRepository.findById(aspectsByTypeEditRqstDto.getId())
+                .orElseThrow(() -> new NotFoundException("Aspect not found"));
+        List<AspectsByTypeEntity> aspectsByType = aspectsByTypeRepository.findAllByTypeId(aspect.getTypeId())
+                .orElseThrow(() -> new NotFoundException("Aspect not found"));
+        if (aspectsByType.stream().anyMatch(a -> a.getAspectName().equalsIgnoreCase(aspectsByTypeEditRqstDto.getNewAspectName())))
+            throw new DataAlreadyExistsException("Aspect already exists");
+        aspectsByTypeService.updateAspectName(aspectsByTypeEditRqstDto.getId(), aspectsByTypeEditRqstDto.getNewAspectName());
+        return ResponseEntity.noContent().build();
+    }
 }

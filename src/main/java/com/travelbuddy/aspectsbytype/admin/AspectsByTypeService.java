@@ -1,6 +1,5 @@
 package com.travelbuddy.aspectsbytype.admin;
-import com.travelbuddy.persistence.domain.dto.aspectsbytype.*;
-
+import com.travelbuddy.persistence.domain.dto.aspectsbytype.AspectsByTypeRepresentationRspndDto;
 import java.util.List;
 
 public interface AspectsByTypeService {
@@ -8,6 +7,6 @@ public interface AspectsByTypeService {
     void deleteAspectById(Integer aspectId);
     void deleteAspectByTypeIdAndAspectName(Integer typeId, String aspectName);
     void updateAspectName(Integer aspectId, String aspectName);
-    void getAspectById(Integer aspectId);
-    List<ViewAspectByTypeRspndDto> getAspectsByTypeId(Integer typeId);
+    AspectsByTypeRepresentationRspndDto getAspectById(Integer aspectId);
+    List<AspectsByTypeRepresentationRspndDto> getAspectsByTypeId(Integer typeId);
 }
