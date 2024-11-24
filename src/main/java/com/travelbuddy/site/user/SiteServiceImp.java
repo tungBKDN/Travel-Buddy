@@ -7,6 +7,7 @@ import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.mapper.PageMapper;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.common.utils.RequestUtils;
+import com.travelbuddy.fee.FeeService;
 import com.travelbuddy.openningtime.user.OpeningTimeService;
 import com.travelbuddy.persistence.domain.dto.site.*;
 import com.travelbuddy.persistence.domain.entity.*;
@@ -47,6 +48,7 @@ public class SiteServiceImp implements SiteService {
     private final StorageExecutorService storageExecutorService;
     private final SiteVersionSpecifications siteVersionSpecifications;
     private final PageMapper pageMapper;
+    private final FeeService feeService;
 
     @Override
     @Transactional
@@ -78,6 +80,8 @@ public class SiteServiceImp implements SiteService {
         }
         siteMediaRepository.saveAll(siteMediaEntities);
 
+        // 8. Save fees
+        feeService.addFee(siteCreateRqstDto.getFees(), siteVersionID);
         return siteId;
     }
 
@@ -126,6 +130,9 @@ public class SiteServiceImp implements SiteService {
         siteEntity.getSiteMedias().addAll(siteMediaEntities);
 
         siteRepository.save(siteEntity);
+
+        // 7. Save fees
+        feeService.addFee(siteUpdateRqstDto.getFees(), siteVersionId);
 
         return siteVersionId;
     }

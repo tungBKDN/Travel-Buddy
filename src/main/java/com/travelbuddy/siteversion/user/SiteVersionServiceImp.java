@@ -3,6 +3,7 @@ package com.travelbuddy.siteversion.user;
 import com.travelbuddy.common.constants.ReactionTypeEnum;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.utils.RequestUtils;
+import com.travelbuddy.fee.FeeService;
 import com.travelbuddy.persistence.domain.dto.site.*;
 import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
@@ -35,6 +36,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
     private final RequestUtils requestUtils;
     private final SiteMediaRepository siteMediaRepository;
     private final SiteReviewRepository siteReviewRepository;
+    private final FeeService feeService;
 
     @Override
     @Transactional
@@ -105,6 +107,8 @@ public class SiteVersionServiceImp implements SiteVersionService {
         resndBody.setTwoStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 2));
         resndBody.setOneStarRating(siteReviewRepository.countBySiteIdAndGeneralRating(siteVersionInfos.getSiteId(), 1));
 
+        // 7. Get fees
+        resndBody.setFees(feeService.getFeeBySiteVersionId(siteVersionId));
         return resndBody;
     }
 
@@ -166,6 +170,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
                 .createdAt(LocalDateTime.now())
                 .typeId(siteUpdateRqstDto.getNewTypeId())
                 .siteId(siteUpdateRqstDto.getSiteId())
+                .description(siteUpdateRqstDto.getNewDescription())
                 .build();
         return siteVersionRepository.save(siteVersion).getId();
     }
@@ -196,7 +201,6 @@ public class SiteVersionServiceImp implements SiteVersionService {
         // 5. Get rating
         resndBody.setAverageRating(siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersionInfos.getSiteId()));
         resndBody.setTotalRating(siteReviewRepository.countBySiteId(siteVersionInfos.getSiteId()));
-
         return resndBody;
     }
 

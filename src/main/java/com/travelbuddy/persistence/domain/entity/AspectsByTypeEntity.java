@@ -1,25 +1,25 @@
 package com.travelbuddy.persistence.domain.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@Entity
+@Table(name = "aspects_by_type")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AspectsByTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "type_id")
     private Integer typeId;
 
     @NotBlank
+    @Column(name = "aspect")
     private String aspectName;
 }

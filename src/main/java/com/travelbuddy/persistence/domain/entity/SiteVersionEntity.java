@@ -33,6 +33,9 @@ public class SiteVersionEntity {
 
     private String website;
 
+    @Column(name = "site_description")
+    private String description;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -50,4 +53,7 @@ public class SiteVersionEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id", referencedColumnName = "site_version_id")
     private SiteApprovalEntity siteApprovalEntity;
+
+    @OneToMany(mappedBy = "siteVersion", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeeEntity> fees;
 }

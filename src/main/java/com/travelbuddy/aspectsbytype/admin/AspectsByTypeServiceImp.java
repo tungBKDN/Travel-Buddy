@@ -1,6 +1,7 @@
 package com.travelbuddy.aspectsbytype.admin;
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
 import com.travelbuddy.persistence.domain.entity.AspectsByTypeEntity;
 import com.travelbuddy.persistence.domain.entity.SiteTypeEntity;
 import com.travelbuddy.persistence.repository.AspectsByTypeRepository;
@@ -26,6 +27,7 @@ public class AspectsByTypeServiceImp implements AspectsByTypeService {
         return aspectsByTypeRepository.save(AspectsByTypeEntity.builder().typeId(typeId).aspectName(aspectName).build()).getId();
     }
 
+    @Override
     public void deleteAspectById(Integer aspectId) {
         if (!aspectsByTypeRepository.existsById(aspectId)) {
             throw new NotFoundException("Aspect with id " + aspectId + " not found");
@@ -33,6 +35,7 @@ public class AspectsByTypeServiceImp implements AspectsByTypeService {
         aspectsByTypeRepository.deleteById(aspectId);
     }
 
+    @Override
     public void deleteAspectByTypeIdAndAspectName(Integer typeId, String aspectName) {
         if (!aspectsByTypeRepository.existsByTypeIdAndAspectNameIgnoreCase(typeId, aspectName)) {
             throw new NotFoundException("Aspect with type id " + typeId + " and aspect name " + aspectName + " not found");
@@ -40,6 +43,7 @@ public class AspectsByTypeServiceImp implements AspectsByTypeService {
         aspectsByTypeRepository.deleteByTypeIdAndAspectNameIgnoreCase(typeId, aspectName);
     }
 
+    @Override
     public void updateAspectName(Integer aspectId, String aspectName) {
         if (!aspectsByTypeRepository.existsById(aspectId)) {
             throw new NotFoundException("Aspect with id " + aspectId + " not found");
@@ -49,17 +53,29 @@ public class AspectsByTypeServiceImp implements AspectsByTypeService {
         aspectsByTypeRepository.save(aspect);
     }
 
-    public List<ViewAspectByTypeRspndDto> getAspectsByTypeId(Integer typeId) {
+    @Override
+    public AspectsByTypeRepresentationRspndDto getAspectById(Integer aspectId) {
+        AspectsByTypeEntity aspect = aspectsByTypeRepository.findById(aspectId).orElseThrow(() -> new NotFoundException("Aspect with id " + aspectId + " not found"));
+        SiteTypeRspnDto siteType = new SiteTypeRspnDto(siteTypeRepository.findById(aspect.getTypeId()).get());
+        AspectsByTypeRepresentationRspndDto viewAspect = new AspectsByTypeRepresentationRspndDto();
+        viewAspect.setAspectId(aspect.getId());
+        viewAspect.setSiteType(siteType);
+        viewAspect.setAspectName(aspect.getAspectName());
+        return viewAspect;
+    }
+
+    @Override
+    public List<AspectsByTypeRepresentationRspndDto> getAspectsByTypeId(Integer typeId) {
         List<AspectsByTypeEntity> aspects = aspectsByTypeRepository.findAllByTypeId(typeId).orElseThrow(() -> new NotFoundException("No aspects found for type id " + typeId));
-        List<ViewAspectByTypeRspndDto> viewAspects = new ArrayList<ViewAspectByTypeRspndDto>();
+        List<AspectsByTypeRepresentationRspndDto> viewAspects = new ArrayList<AspectsByTypeRepresentationRspndDto>();
         for (AspectsByTypeEntity aspect : aspects) {
-            SiteTypeEntity siteType = siteTypeRepository.findById(typeId).get();
-            ViewAspectByTypeRspndDto viewAspectByTypeRspndDto = new ViewAspectByTypeRspndDto();
+            SiteTypeRspnDto siteType = new SiteTypeRspnDto(siteTypeRepository.findById(aspect.getTypeId()).get());
+            AspectsByTypeRepresentationRspndDto viewAspectByTypeRspndDto = new AspectsByTypeRepresentationRspndDto();
             viewAspectByTypeRspndDto.setAspectId(aspect.getId());
             viewAspectByTypeRspndDto.setSiteType(siteType);
             viewAspectByTypeRspndDto.setAspectName(aspect.getAspectName());
             viewAspects.add(viewAspectByTypeRspndDto);
         }
-        return null;
+        return viewAspects;
     }
 }
