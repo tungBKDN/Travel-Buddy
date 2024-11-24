@@ -33,6 +33,9 @@ public class SiteVersionEntity {
 
     private String website;
 
+    @Column(name = "site_description")
+    private String description;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

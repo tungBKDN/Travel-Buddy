@@ -21,4 +21,5 @@ public class SiteUpdateRqstDto {
     private List<Integer> newServices;
     private List<Integer> mediaIds;
     private List<CreateFeeRqstDto> fees;
+    private String newDescription;
 }

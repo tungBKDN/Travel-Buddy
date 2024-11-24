@@ -48,6 +48,7 @@ public class SiteRepresentationDto implements Serializable {
     private List<GroupedSiteServicesRspnDto> groupedServices;
     private List<OpeningTimeRepresentationDto> openingTimes;
     private List<FeeRspndDto> fees;
+    private String description;
 
     private List<MediaRspnDto> medias;
 
@@ -68,7 +69,7 @@ public class SiteRepresentationDto implements Serializable {
         this.resolvedAddress = siteVersion.getResolvedAddress();
         this.website = siteVersion.getWebsite();
         this.createdAt = siteVersion.getCreatedAt().toString();
-
+        this.description = siteVersion.getDescription();
         // Mapping the siteType
         this.siteType = new SiteTypeRspnDto(siteVersion.getSiteType());
     }

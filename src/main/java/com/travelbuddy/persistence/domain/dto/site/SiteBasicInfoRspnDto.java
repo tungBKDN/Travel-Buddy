@@ -33,6 +33,7 @@ public class SiteBasicInfoRspnDto {
     private String website;
     private String createdAt;
     private SiteTypeRspnDto siteType;
+    private String description;
 
     private Double averageRating;
     private Integer totalRating;
@@ -46,6 +47,7 @@ public class SiteBasicInfoRspnDto {
         this.resolvedAddress = siteVersion.getResolvedAddress();
         this.website = siteVersion.getWebsite();
         this.createdAt = siteVersion.getCreatedAt().toString();
+        this.description = siteVersion.getDescription();
 
         // Mapping the siteType
         this.siteType = new SiteTypeRspnDto(siteVersion.getSiteType());
@@ -72,6 +74,7 @@ public class SiteBasicInfoRspnDto {
         this.website = siteVersionEntity.getWebsite();
         this.createdAt = siteVersionEntity.getCreatedAt().toString();
         this.siteType = new SiteTypeRspnDto(siteVersionEntity.getSiteType());
+        this.description = siteVersionEntity.getDescription();
 
         // Mapping the owner
         UserEntity owner = siteVersionEntity.getSiteEntity().getUserEntity();
