@@ -1,5 +1,7 @@
 package com.travelbuddy.persistence.domain.dto.site;
 
+import com.travelbuddy.persistence.domain.dto.fee.CreateFeeRqstDto;
+import com.travelbuddy.persistence.domain.entity.FeeEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +19,5 @@ public class SiteCreateRqstDto {
     private List<String> phoneNumbers;
     private List<OpeningTimeCreateRqstDto> openingTimes;
     private List<Integer> services;
+    private List<CreateFeeRqstDto> fees;
 }

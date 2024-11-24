@@ -50,4 +50,7 @@ public class SiteVersionEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id", referencedColumnName = "site_version_id")
     private SiteApprovalEntity siteApprovalEntity;
+
+    @OneToMany(mappedBy = "siteVersion", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeeEntity> fees;
 }

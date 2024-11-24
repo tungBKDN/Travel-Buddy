@@ -1,10 +1,13 @@
 package com.travelbuddy.persistence.domain.dto.site;
 
+import com.travelbuddy.persistence.domain.dto.fee.FeeRspndDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor

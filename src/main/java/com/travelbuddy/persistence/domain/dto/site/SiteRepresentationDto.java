@@ -2,6 +2,7 @@ package com.travelbuddy.persistence.domain.dto.site;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.travelbuddy.persistence.domain.dto.fee.FeeRspndDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
@@ -46,6 +47,7 @@ public class SiteRepresentationDto implements Serializable {
     private List<String> phoneNumbers;
     private List<GroupedSiteServicesRspnDto> groupedServices;
     private List<OpeningTimeRepresentationDto> openingTimes;
+    private List<FeeRspndDto> fees;
 
     private List<MediaRspnDto> medias;
 
