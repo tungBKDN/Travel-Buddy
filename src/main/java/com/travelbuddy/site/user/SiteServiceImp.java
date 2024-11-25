@@ -33,7 +33,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SiteServiceImp implements SiteService {
     private final SiteRepository siteRepository;
-    private final UserRepository userRepository;
     private final SiteApprovalRepository siteApprovalRepository;
     private final SiteVersionRepository siteVersionRepository;
 

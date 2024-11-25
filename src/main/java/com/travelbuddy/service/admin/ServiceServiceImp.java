@@ -32,7 +32,6 @@ public class ServiceServiceImp implements ServiceService {
     private final SiteVersionRepository siteVersionRepository;
     private final ServicesByGroupRepository servicesByGroupRepository;
 
-
     @Override
     public void createSiteService(ServiceCreateRqstDto serviceCreateRqstDto) {
         if (serviceRepository.existsByServiceNameIgnoreCase(serviceCreateRqstDto.getServiceName()))
