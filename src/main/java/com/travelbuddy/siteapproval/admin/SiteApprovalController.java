@@ -1,8 +1,11 @@
 package com.travelbuddy.siteapproval.admin;
 
 import com.travelbuddy.auth.service.AdminService;
+import com.travelbuddy.persistence.domain.dto.site.SiteRepresentationDto;
 import com.travelbuddy.persistence.domain.dto.siteapproval.UpdateSiteApprovalRqstDto;
+import com.travelbuddy.persistence.domain.entity.SiteApprovalEntity;
 import com.travelbuddy.persistence.repository.SiteApprovalRepository;
+import com.travelbuddy.siteversion.user.SiteVersionService;
 import jakarta.validation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -16,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class SiteApprovalController {
     private final SiteApprovalService siteApprovalService;
     private final AdminService adminService;
+    private final SiteApprovalRepository siteApprovalRepository;
+    private final SiteVersionService siteVersionService;
 
     @PreAuthorize("hasAuthority('MANAGE_SITES')")
     @PutMapping
@@ -31,5 +36,16 @@ public class SiteApprovalController {
     // Get and paging for all site approvals
     public ResponseEntity<Object> getAllSiteApprovals(@RequestParam(defaultValue = "1") int page) {
         return ResponseEntity.ok(siteApprovalService.getPendingSiteApprovals(page));
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_SITES')")
+    @GetMapping("/{siteApprovalId}")
+    public ResponseEntity<Object> getSiteApproval(@PathVariable Integer siteApprovalId) {
+        SiteApprovalEntity siteApproval = siteApprovalRepository.findById(siteApprovalId).orElse(null);
+        if (siteApproval == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Site approval not found");
+        }
+        SiteRepresentationDto siteRepresentationDto = siteVersionService.getSiteVersionView(siteApproval.getSiteVersionId());
+        return ResponseEntity.ok(siteRepresentationDto);
     }
 }
