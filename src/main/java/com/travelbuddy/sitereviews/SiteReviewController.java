@@ -3,8 +3,10 @@ package com.travelbuddy.sitereviews;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelbuddy.common.constants.MediaTypeEnum;
+import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.common.utils.FilenameUtils;
 import com.travelbuddy.common.utils.RequestUtils;
+import com.travelbuddy.persistence.domain.dto.sitereview.MySiteReviewRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewCreateRqstDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewDetailRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewUpdateRqstDto;
@@ -14,6 +16,7 @@ import com.travelbuddy.upload.cloud.StorageService;
 import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 import com.travelbuddy.upload.cloud.dto.FileUploadRqstDto;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -198,5 +201,13 @@ public class SiteReviewController {
     public ResponseEntity<Void> dislikeSiteReview(@PathVariable int reviewId) {
         siteReviewService.dislikeSiteReview(reviewId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/my-reviews")
+    public ResponseEntity<Object> getMySiteReviews(@RequestParam(name = "q", required = false, defaultValue = "") String reviewSearch,
+                                                   @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+        PageDto<MySiteReviewRspnDto> mySiteReviews = siteReviewService.getMySiteReviews(reviewSearch, page);
+
+        return ResponseEntity.ok(mySiteReviews);
     }
 }

@@ -8,21 +8,21 @@ import com.travelbuddy.common.mapper.PageMapper;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.common.utils.RequestUtils;
 import com.travelbuddy.mapper.SiteReviewMapper;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewCreateRqstDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewDetailRspnDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewRspnDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewUpdateRqstDto;
+import com.travelbuddy.persistence.domain.dto.site.SiteBasicInfoRspnDto;
+import com.travelbuddy.persistence.domain.dto.sitereview.*;
 import com.travelbuddy.persistence.domain.entity.ReviewMediaEntity;
 import com.travelbuddy.persistence.domain.entity.ReviewReactionEntity;
 import com.travelbuddy.persistence.domain.entity.SiteReviewEntity;
 import com.travelbuddy.persistence.repository.ReviewMediaRepository;
 import com.travelbuddy.persistence.repository.ReviewReactionRepository;
 import com.travelbuddy.persistence.repository.SiteReviewRepository;
+import com.travelbuddy.site.user.SiteService;
 import com.travelbuddy.upload.cloud.StorageExecutorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.travelbuddy.common.constants.PaginationLimitConstants.SITE_REVIEW_LIMIT;
+import static com.travelbuddy.common.constants.PaginationLimitConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +45,7 @@ public class SiteReviewServiceImpl implements SiteReviewService {
     private final StorageExecutorService storageExecutorService;
     private final ReviewReactionRepository reviewReactionRepository;
     private final RequestUtils requestUtils;
+    private final SiteService siteService;
 
     @Override
     public void createSiteReview(SiteReviewCreateRqstDto siteReviewCreateRqstDto, List<ReviewMediaEntity> reviewMediaEntities) {
@@ -206,5 +207,23 @@ public class SiteReviewServiceImpl implements SiteReviewService {
                     .build();
         }
         reviewReactionRepository.save(reviewReactionEntity);
+    }
+
+    @Override
+    public PageDto<MySiteReviewRspnDto> getMySiteReviews(String reviewSearch, int page) {
+        int userId = requestUtils.getUserIdCurrentRequest();
+
+        Pageable pageable = PageRequest.of(page - 1, MY_SITE_REVIEW_LIMIT, Sort.by(Sort.Order.desc("createdAt")));
+
+        Page<SiteReviewEntity> siteReviews = siteReviewRepository.findAllByUserIdAndCommentContainingIgnoreCase(userId, reviewSearch, pageable);
+
+        PageDto<MySiteReviewRspnDto> mySiteReviews = pageMapper.toPageDto(siteReviews.map(siteReviewEntity -> siteReviewMapper.siteReviewEntityToMySiteReviewRspnDto(siteReviewEntity, userId)));
+
+        mySiteReviews.getData().forEach(mySiteReviewRspnDto -> {
+            SiteBasicInfoRspnDto siteBasicInfoRspnDto = siteService.getSiteBasicRepresentation(mySiteReviewRspnDto.getSiteId());
+            mySiteReviewRspnDto.setSite(siteBasicInfoRspnDto);
+        });
+
+        return mySiteReviews;
     }
 }

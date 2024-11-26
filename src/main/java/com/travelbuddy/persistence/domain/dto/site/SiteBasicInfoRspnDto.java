@@ -1,6 +1,7 @@
 package com.travelbuddy.persistence.domain.dto.site;
 
 import com.travelbuddy.persistence.domain.dto.fee.FeeRspndDto;
+import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitetype.SiteTypeRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,8 @@ public class SiteBasicInfoRspnDto {
     private String createdAt;
     private SiteTypeRspnDto siteType;
     private String description;
+
+    private List<MediaRspnDto> medias;
 
     private Double averageRating;
     private Integer totalRating;
