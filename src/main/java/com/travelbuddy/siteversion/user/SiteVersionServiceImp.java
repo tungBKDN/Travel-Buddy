@@ -127,15 +127,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
             SiteTypeEntity siteType = siteTypeRepository.findById(siteVersion.getTypeId())
                     .orElseThrow(() -> new NotFoundException("Site type not found"));
 
-            List<SiteMediaEntity> siteMediaEntities = siteMediaRepository.findAllBySiteId(siteVersion.getSiteId());
-            List<MediaRspnDto> medias = siteMediaEntities.stream()
-                    .map(siteMediaEntity -> MediaRspnDto.builder()
-                            .id(siteMediaEntity.getId())
-                            .url(siteMediaEntity.getMedia().getUrl())
-                            .mediaType(siteMediaEntity.getMediaType())
-                            .createdAt(String.valueOf(siteMediaEntity.getMedia().getCreatedAt()))
-                            .build())
-                    .toList();
+            List<MediaRspnDto> medias = getSiteMedias(siteVersion.getSiteId());
 
             Double averageRating = siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersion.getSiteId());
             Integer totalRating = siteReviewRepository.countBySiteId(siteVersion.getSiteId());
@@ -201,7 +193,24 @@ public class SiteVersionServiceImp implements SiteVersionService {
         // 5. Get rating
         resndBody.setAverageRating(siteReviewRepository.getAverageGeneralRatingBySiteId(siteVersionInfos.getSiteId()));
         resndBody.setTotalRating(siteReviewRepository.countBySiteId(siteVersionInfos.getSiteId()));
+
+        // 6. Get medias
+        resndBody.setMedias(getSiteMedias(siteVersionInfos.getSiteId()));
+
         return resndBody;
+    }
+
+    private List<MediaRspnDto> getSiteMedias(int siteId) {
+        List<SiteMediaEntity> siteMediaEntities = siteMediaRepository.findAllBySiteId(siteId);
+
+        return siteMediaEntities.stream()
+                .map(siteMediaEntity -> MediaRspnDto.builder()
+                        .id(siteMediaEntity.getId())
+                        .url(siteMediaEntity.getMedia().getUrl())
+                        .mediaType(siteMediaEntity.getMediaType())
+                        .createdAt(String.valueOf(siteMediaEntity.getMedia().getCreatedAt()))
+                        .build())
+                .toList();
     }
 
     private String getReactionType(int siteId) {

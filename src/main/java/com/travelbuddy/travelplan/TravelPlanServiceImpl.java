@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -277,6 +278,8 @@ public class TravelPlanServiceImpl implements TravelPlanService {
 
             sites.add(siteRspnDto);
         }
+
+        sites.sort(Comparator.comparing(TravelPlanSiteRspnDto::getStartTime));
         travelPlanRspnDto.setSites(sites);
 
         List<TravelPlanMemberRspnDto> members = new ArrayList<>();

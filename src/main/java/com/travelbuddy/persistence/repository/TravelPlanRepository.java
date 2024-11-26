@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface TravelPlanRepository extends JpaRepository<TravelPlanEntity, Integer> {
-    @Query("SELECT tp FROM TravelPlanEntity tp JOIN tp.userEntities tu WHERE tu.id = :userId")
+    @Query("SELECT tp FROM TravelPlanEntity tp JOIN tp.userEntities tu WHERE tu.id = :userId ORDER BY tp.startTime")
     List<TravelPlanEntity> findAllByUserId(int userId);
 }

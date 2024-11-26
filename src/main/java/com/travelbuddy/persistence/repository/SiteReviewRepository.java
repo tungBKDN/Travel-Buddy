@@ -1,6 +1,9 @@
 package com.travelbuddy.persistence.repository;
 
+import com.travelbuddy.persistence.domain.dto.sitereview.MySiteReviewRspnDto;
 import com.travelbuddy.persistence.domain.entity.SiteReviewEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +19,6 @@ public interface SiteReviewRepository extends JpaRepository<SiteReviewEntity, Lo
     int countBySiteIdAndGeneralRating(int siteId, int i);
 
     boolean existsBySiteIdAndUserId(int siteId, int userId);
+
+    Page<SiteReviewEntity> findAllByUserIdAndCommentContainingIgnoreCase(int userId, String reviewSearch, Pageable pageable);
 }

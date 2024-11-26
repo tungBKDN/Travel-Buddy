@@ -211,8 +211,7 @@ public class SiteController {
         // 3. Update the site
         Integer newSiteVersionId = siteService.updateSite(siteUpdateRqstDto, siteMedias);
 
-        // Return the URI of the new site version, owner can be redirected to the new version
-        return ResponseEntity.created(URI.create("/api/sites/version=" + newSiteVersionId)).build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping

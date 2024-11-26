@@ -4,10 +4,10 @@ import com.travelbuddy.common.constants.ReactionTypeEnum;
 import com.travelbuddy.common.mapper.JacksonMapper;
 import com.travelbuddy.persistence.domain.dto.auth.BasicInfoDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.MediaRspnDto;
+import com.travelbuddy.persistence.domain.dto.sitereview.MySiteReviewRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewDetailRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewRspnDto;
 import com.travelbuddy.persistence.domain.entity.*;
-import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -83,4 +83,17 @@ public interface SiteReviewMapper {
                 .map(ReviewReactionEntity::getReactionType)
                 .orElse(null);
     }
+
+    @Mapping(target = "id", source = "siteReviewEntity.id")
+    @Mapping(target = "siteId", source = "siteReviewEntity.siteId")
+    @Mapping(target = "generalRating", source = "siteReviewEntity.generalRating")
+    @Mapping(target = "comment", source = "siteReviewEntity.comment")
+    @Mapping(target = "date", expression = "java(getSiteReviewDate(siteReviewEntity))")
+    @Mapping(target = "medias", expression = "java(toReviewMediaRspnDto(siteReviewEntity.getReviewMedias()))")
+    @Mapping(target = "isEdited", expression = "java(siteReviewEntity.getUpdatedAt() != null)")
+    @Mapping(target = "likeCount", source = "siteReviewEntity.reviewReactions", qualifiedByName = "likeCount")
+    @Mapping(target = "dislikeCount", source = "siteReviewEntity.reviewReactions", qualifiedByName = "dislikeCount")
+    @Mapping(target = "userReaction", expression = "java(userReaction(siteReviewEntity.getReviewReactions(), userId))")
+    @Mapping(target = "arrivalDate", source = "siteReviewEntity.arrivalDate")
+    MySiteReviewRspnDto siteReviewEntityToMySiteReviewRspnDto(SiteReviewEntity siteReviewEntity, int userId);
 }
