@@ -17762,3 +17762,6 @@ INSERT INTO review_medias (id, review_id, media_id, media_type) VALUES (17770, 2
 INSERT INTO review_medias (id, review_id, media_id, media_type) VALUES (17771, 21039, 'review-17762', 'IMAGE');
 INSERT INTO review_medias (id, review_id, media_id, media_type) VALUES (17772, 21043, 'review-17763', 'IMAGE');
 INSERT INTO review_medias (id, review_id, media_id, media_type) VALUES (17773, 21043, 'review-17764', 'IMAGE');
+
+--Reset sequence
+SELECT setval('review_medias_id_seq', (SELECT MAX(id) FROM review_medias));
