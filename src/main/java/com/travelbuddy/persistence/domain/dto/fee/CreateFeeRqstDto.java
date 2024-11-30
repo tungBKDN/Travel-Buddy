@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateFeeRqstDto {
-    private Integer siteVersionId;
     private Integer aspectId;
     private Integer feeLow;
     private Integer feeHigh;
