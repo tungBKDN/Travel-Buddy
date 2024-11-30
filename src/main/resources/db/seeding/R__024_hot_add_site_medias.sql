@@ -572,3 +572,6 @@ INSERT INTO site_medias (id, site_id, media_id, media_type) VALUES  (10, 10, 'f-
 (736, 736, 'f-736', 'IMAGE'),
 (737, 737, 'f-737', 'IMAGE'),
 (739, 739, 'f-739', 'IMAGE');
+
+--Reset sequence
+SELECT setval('site_medias_id_seq', (SELECT MAX(id) FROM site_medias));

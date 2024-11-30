@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -16,4 +17,7 @@ public interface TravelPlanSiteRepository extends JpaRepository<TravelPlanSiteEn
     @Modifying
     @Query("DELETE FROM TravelPlanSiteEntity tps WHERE tps.id.travelPlanEntity.id = :travelPlanId AND tps.id.siteEntity.id = :siteId")
     void deleteByTravelPlanIdAndSiteId(int travelPlanId, int siteId);
+
+    @Query("SELECT tps FROM TravelPlanSiteEntity tps WHERE tps.id.travelPlanEntity.id = :travelPlanId")
+    List<TravelPlanSiteEntity> findAllByTravelPlanId(int travelPlanId);
 }

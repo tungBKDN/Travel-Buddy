@@ -1,10 +1,7 @@
 package com.travelbuddy.sitereviews;
 
 import com.travelbuddy.common.paging.PageDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewCreateRqstDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewDetailRspnDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewRspnDto;
-import com.travelbuddy.persistence.domain.dto.sitereview.SiteReviewUpdateRqstDto;
+import com.travelbuddy.persistence.domain.dto.sitereview.*;
 import com.travelbuddy.persistence.domain.entity.ReviewMediaEntity;
 
 import java.util.List;
@@ -25,4 +22,6 @@ public interface SiteReviewService {
     void likeSiteReview(int reviewId);
 
     void dislikeSiteReview(int reviewId);
+
+    PageDto<MySiteReviewRspnDto> getMySiteReviews(String reviewSearch, int page);
 }

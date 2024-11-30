@@ -728,3 +728,6 @@ INSERT INTO sites (id, owner_id) VALUES  (10, 3),
 (737, 3),
 (738, 1),
 (739, 2);
+
+-- Reset sequence
+SELECT setval('sites_id_seq', (SELECT MAX(id) FROM sites));

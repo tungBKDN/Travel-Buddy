@@ -728,3 +728,6 @@ INSERT INTO site_versions (id, site_id, parent_version_id, site_name, lat, lng, 
 (737, 737, null, 'La Belle Vie Boutique Hotel', 16.0872953, 108.21949, '02 Cao Xuân Dục, Thuận Phước, quận Hải Châu, TP. Đà Nẵng', 'https://labellevieboutique.com/', 27, '2024-09-02 01:51:21'),
 (738, 738, null, 'Bãi tắm Ông Diệc', 16.1196512, 107.9843814, 'Sông Nam, Thôn Giàn Bí, xã Hoà Bắc, huyện Hòa Vang, TP. Đà Nẵng', 'null', 47, '2024-09-05 15:07:32'),
 (739, 739, null, 'Ghềnh Bàng', 16.1124336, 108.3116322, 'Hoàng Sa, Thọ Quang, Sơn Trà, TP. Đà Nẵng', 'null', 26, '2024-09-06 05:58:46');
+
+--Reset sequence
+SELECT setval('site_versions_id_seq', (SELECT MAX(id) FROM site_versions));
