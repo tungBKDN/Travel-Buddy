@@ -1,6 +1,7 @@
 package com.travelbuddy.sitetype.admin;
 
 import com.travelbuddy.aspectsbytype.admin.AspectsByTypeService;
+import com.travelbuddy.common.constants.PaginationLimitConstants;
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.paging.PageDto;
@@ -36,17 +37,22 @@ public class SiteTypeController {
         if (siteTypeRepository.existsByTypeNameIgnoreCase(siteTypeCreateRqstDto.getSiteTypeName()))
             throw new DataAlreadyExistsException("Site type already exists");
 
-        Integer siteTypeId =  siteTypeService.createSiteType(siteTypeCreateRqstDto);
+        Integer siteTypeId = siteTypeService.createSiteType(siteTypeCreateRqstDto);
         return ResponseEntity.created(URI.create("/admin/api/siteTypes/" + siteTypeId)).build();
     }
 
     @GetMapping
     public ResponseEntity<Object> getSiteTypes(@RequestParam(name = "q", required = false, defaultValue = "") String siteTypeSearch,
-                                               @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
+                                               @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                               @RequestParam(name = "limit", required = false) Integer limit) {
 
+        // Check for limit is set
+        if (limit == null) {
+            limit = PaginationLimitConstants.SITE_TYPE_LIMIT;
+        }
         PageDto<SiteTypeRspnDto> siteTypesPage = siteTypeSearch.trim().isEmpty()
-                ? siteTypeService.getAllSiteTypes(page)
-                : siteTypeService.searchSiteTypes(siteTypeSearch, page);
+                ? siteTypeService.getAllSiteTypes(page, limit)
+                : siteTypeService.searchSiteTypes(siteTypeSearch, page, limit);
 
         return ResponseEntity.ok(siteTypesPage);
     }

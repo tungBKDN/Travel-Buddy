@@ -12,9 +12,9 @@ public interface SiteTypeService {
     Integer createSiteType(SiteTypeCreateRqstDto siteTypeCreateRqstDto);
     void updateSiteType(int siteTypeId, SiteTypeCreateRqstDto siteTypeCreateRqstDto);
 
-    PageDto<SiteTypeRspnDto> getAllSiteTypes(int page);
+    PageDto<SiteTypeRspnDto> getAllSiteTypes(int page, int limit);
 
-    PageDto<SiteTypeRspnDto> searchSiteTypes(String siteTypeSearch, int page);
+    PageDto<SiteTypeRspnDto> searchSiteTypes(String siteTypeSearch, int page, int limit);
     List<GroupedSiteServicesRspnDto> getAssociatedServiceGroups(Integer siteTypeId);
 }
 

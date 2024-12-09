@@ -53,15 +53,15 @@ public class SiteTypeServiceImp implements SiteTypeService {
     }
 
     @Override
-    public PageDto<SiteTypeRspnDto> getAllSiteTypes(int page) {
-        Pageable pageable = PageRequest.of(page - 1, SITE_TYPE_LIMIT, Sort.by("typeName"));
+    public PageDto<SiteTypeRspnDto> getAllSiteTypes(int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("typeName"));
         Page<SiteTypeEntity> siteTypes = siteTypeRepository.findAll(pageable);
         return pageMapper.toPageDto(siteTypes.map(siteTypeMapper::siteTypeEntityToSiteTypeRspnDto));
     }
 
     @Override
-    public PageDto<SiteTypeRspnDto> searchSiteTypes(String siteTypeSearch, int page) {
-        Pageable pageable = PageRequest.of(page - 1, SITE_TYPE_LIMIT, Sort.by("typeName"));
+    public PageDto<SiteTypeRspnDto> searchSiteTypes(String siteTypeSearch, int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("typeName"));
         Page<SiteTypeEntity> siteTypes = siteTypeRepository.searchSiteTypeEntitiesByTypeNameContainingIgnoreCase(siteTypeSearch, pageable);
         return pageMapper.toPageDto(siteTypes.map(siteTypeMapper::siteTypeEntityToSiteTypeRspnDto));
     }
