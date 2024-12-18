@@ -5,8 +5,6 @@ import com.travelbuddy.persistence.domain.dto.account.user.*;
 import com.travelbuddy.persistence.domain.dto.auth.BasicInfoDto;
 import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 
-import java.util.List;
-
 public interface UserService {
     int getUserIdByEmailOrUsername(String emailOrUsername);
 

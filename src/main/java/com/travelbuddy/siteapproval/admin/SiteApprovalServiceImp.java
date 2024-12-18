@@ -3,6 +3,7 @@ package com.travelbuddy.siteapproval.admin;
 import com.travelbuddy.common.constants.ApprovalStatusEnum;
 import com.travelbuddy.common.constants.PaginationLimitConstants;
 import com.travelbuddy.common.exception.errorresponse.EnumNotFitException;
+import com.travelbuddy.common.exception.errorresponse.NotFoundException;
 import com.travelbuddy.common.mapper.PageMapper;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.persistence.domain.dto.siteapproval.GeneralViewSiteApprovalRspndDto;
@@ -51,7 +52,7 @@ public class SiteApprovalServiceImp implements SiteApprovalService {
             throw new EnumNotFitException("Invalid status: " + updateSiteApprovalRqstDto.getStatus());
         }
 
-        SiteApprovalEntity siteApprovalEntity = siteApprovalRepository.findById(updateSiteApprovalRqstDto.getId()).orElseThrow(() -> new RuntimeException("Site approval not found"));
+        SiteApprovalEntity siteApprovalEntity = siteApprovalRepository.findById(updateSiteApprovalRqstDto.getId()).orElseThrow(() -> new NotFoundException("Site approval not found"));
         siteApprovalEntity.setStatus(ApprovalStatusEnum.valueOf(updateSiteApprovalRqstDto.getStatus()));
         siteApprovalEntity.setAdminId(adminId);
         siteApprovalEntity.setApprovedAt(Timestamp.valueOf(LocalDateTime.now()));

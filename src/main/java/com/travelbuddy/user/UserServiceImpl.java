@@ -3,7 +3,6 @@ package com.travelbuddy.user;
 import com.travelbuddy.common.constants.PaginationLimitConstants;
 import com.travelbuddy.common.exception.auth.InvalidLoginCredentialsException;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
-import com.travelbuddy.common.exception.userinput.UserInputException;
 import com.travelbuddy.common.mapper.PageMapper;
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.mapper.UserMapper;
@@ -21,15 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static com.travelbuddy.common.constants.PaginationLimitConstants.SITE_REVIEW_LIMIT;
 
 @Service
 @RequiredArgsConstructor

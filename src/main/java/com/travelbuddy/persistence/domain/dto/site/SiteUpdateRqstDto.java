@@ -1,6 +1,7 @@
 package com.travelbuddy.persistence.domain.dto.site;
 
 import com.travelbuddy.persistence.domain.dto.fee.CreateFeeRqstDto;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +20,9 @@ public class SiteUpdateRqstDto {
     private List<String> newPhoneNumbers;
     private List<OpeningTimeCreateRqstDto> newOpeningTimes;
     private List<Integer> newServices;
-    private List<Integer> mediaIds;
     private List<CreateFeeRqstDto> fees;
     private String newDescription;
+    private List<Integer> mediaIds;
+
+    private List<FileRspnDto> newMedias;
 }

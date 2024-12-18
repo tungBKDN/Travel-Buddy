@@ -1,5 +1,6 @@
 package com.travelbuddy.persistence.domain.dto.travelplan;
 
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -13,4 +14,5 @@ public class TravelPlanCreateRqstDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String description;
+    private FileRspnDto cover;
 }

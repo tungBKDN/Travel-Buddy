@@ -17,4 +17,5 @@ public class TravelPlanBasicRspnDto {
     private String description;
     private String startTime; // yyyyMMdd HH:mm
     private String endTime; // yyyyMMdd HH:mm
+    private String coverUrl;
 }

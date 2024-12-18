@@ -1,5 +1,6 @@
 package com.travelbuddy.site.user;
 
+import com.travelbuddy.common.constants.MediaTypeEnum;
 import com.travelbuddy.common.constants.PaginationLimitConstants;
 import com.travelbuddy.common.constants.ReactionTypeEnum;
 import com.travelbuddy.common.exception.errorresponse.ForbiddenException;
@@ -17,6 +18,7 @@ import com.travelbuddy.service.admin.ServiceService;
 import com.travelbuddy.siteapproval.admin.SiteApprovalService;
 import com.travelbuddy.siteversion.user.SiteVersionService;
 import com.travelbuddy.upload.cloud.StorageExecutorService;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,11 +27,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class SiteServiceImp implements SiteService {
     private final SiteRepository siteRepository;
@@ -51,7 +55,7 @@ public class SiteServiceImp implements SiteService {
 
     @Override
     @Transactional
-    public Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto, List<SiteMediaEntity> siteMediaEntities) {
+    public Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto) {
         // 1. Save site entity into database
         int userId = requestUtils.getUserIdCurrentRequest();
         SiteEntity siteEntity = siteRepository.save(SiteEntity.builder().ownerId(userId).build());
@@ -74,8 +78,16 @@ public class SiteServiceImp implements SiteService {
             serviceService.createServicesBySiteVersion(siteVersionID, siteCreateRqstDto.getServices());
 
         // 7. Save site media
-        for (SiteMediaEntity siteMediaEntity : siteMediaEntities) {
-            siteMediaEntity.setSite(siteEntity);
+        List<SiteMediaEntity> siteMediaEntities = new ArrayList<>();
+        for (FileRspnDto fileRspnDto : siteCreateRqstDto.getMedias()) {
+            siteMediaEntities.add(SiteMediaEntity.builder()
+                    .media(FileEntity.builder()
+                            .id(fileRspnDto.getId())
+                            .url(fileRspnDto.getUrl())
+                            .build())
+                    .mediaType(fileRspnDto.getUrl().contains("video") ? MediaTypeEnum.VIDEO.name() : MediaTypeEnum.IMAGE.name())
+                    .site(siteEntity)
+                    .build());
         }
         siteMediaRepository.saveAll(siteMediaEntities);
 
@@ -86,7 +98,7 @@ public class SiteServiceImp implements SiteService {
 
     @Override
     @Transactional
-    public Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto, List<SiteMediaEntity> siteMediaEntities) {
+    public Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto) {
         SiteEntity siteEntity = siteRepository.findById(siteUpdateRqstDto.getSiteId())
                 .orElseThrow(() -> new NotFoundException("Site not found"));
 
@@ -124,7 +136,18 @@ public class SiteServiceImp implements SiteService {
 
         storageExecutorService.deleteFiles(mediaIdsToDelete);
 
-        siteMediaEntities.forEach(siteMediaEntity -> siteMediaEntity.setSite(siteEntity));
+        List<SiteMediaEntity> siteMediaEntities = new ArrayList<>();
+        for (FileRspnDto fileRspnDto : siteUpdateRqstDto.getNewMedias()) {
+            siteMediaEntities.add(SiteMediaEntity.builder()
+                    .media(FileEntity.builder()
+                            .id(fileRspnDto.getId())
+                            .url(fileRspnDto.getUrl())
+                            .createdAt(LocalDateTime.now())
+                            .build())
+                    .mediaType(fileRspnDto.getUrl().contains("video") ? MediaTypeEnum.VIDEO.name() : MediaTypeEnum.IMAGE.name())
+                    .site(siteEntity)
+                    .build());
+        }
 
         siteEntity.getSiteMedias().addAll(siteMediaEntities);
 

@@ -27,6 +27,10 @@ public class TravelPlanEntity {
 
     private LocalDateTime endTime;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "cover_id", referencedColumnName = "id")
+    private FileEntity cover;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "travel_plans__users",
             joinColumns = @JoinColumn(name = "travel_plan_id"),

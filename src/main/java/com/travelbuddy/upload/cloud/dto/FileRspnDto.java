@@ -1,14 +1,14 @@
 package com.travelbuddy.upload.cloud.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-@Getter
-@Setter
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FileRspnDto {
     private String id;
     private String url;

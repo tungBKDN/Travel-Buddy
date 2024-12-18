@@ -23,6 +23,7 @@ import static com.travelbuddy.common.constants.GeographicLimitConstants.MAX_DEG_
 import static com.travelbuddy.common.constants.GeographicLimitConstants.MIN_DEG_RADIUS;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class SiteVersionServiceImp implements SiteVersionService {
     private final SiteVersionRepository siteVersionRepository;

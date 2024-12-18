@@ -2,13 +2,12 @@ package com.travelbuddy.site.user;
 
 import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.persistence.domain.dto.site.*;
-import com.travelbuddy.persistence.domain.entity.SiteMediaEntity;
 
 import java.util.List;
 
 public interface SiteService {
-    Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto, List<SiteMediaEntity> siteMediaEntities);
-    Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto, List<SiteMediaEntity> siteMediaEntities);
+    Integer createSiteWithSiteVersion(SiteCreateRqstDto siteCreateRqstDto);
+    Integer updateSite(SiteUpdateRqstDto siteUpdateRqstDto);
     SiteBasicInfoRspnDto getSiteBasicRepresentation(Integer siteID);
 
     void likeSite(int siteId);
