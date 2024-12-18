@@ -1,5 +1,6 @@
 package com.travelbuddy.upload;
 
+import com.travelbuddy.common.exception.userinput.UserInputException;
 import com.travelbuddy.common.utils.FilenameUtils;
 import com.travelbuddy.upload.cloud.StorageService;
 import com.travelbuddy.upload.cloud.dto.FileRspnDto;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/upload")
@@ -21,25 +24,36 @@ public class UploadController {
     }
 
     @PostMapping
-    public ResponseEntity<FileRspnDto> upload(@RequestParam("file") MultipartFile file,
-                                              @RequestParam("folder") String folder,
-                                              @RequestParam(value = "temporary", required = false, defaultValue = "true")
-                                            boolean temporary) throws IOException {
-        if (file.isEmpty()) {
-            throw new RuntimeException("File is empty");
+    public ResponseEntity<List<FileRspnDto>> upload(@RequestParam("files") List<MultipartFile> files) throws IOException {
+//                                              @RequestParam(value = "temporary", required = false, defaultValue = "true") boolean temporary) throws IOException {
+        if (files.isEmpty()) {
+            throw new UserInputException("File is empty");
         }
 
-        FileUploadRqstDto fileUploadRqstDto = new FileUploadRqstDto();
-        fileUploadRqstDto.setInputStream(file.getInputStream());
-        fileUploadRqstDto.setFolder(folder);
-        fileUploadRqstDto.setMimeType(file.getContentType());
-        fileUploadRqstDto.setExtension(FilenameUtils.getExtension(file.getOriginalFilename()).orElse(null));
+        List<FileRspnDto> uploadedFiles = new ArrayList<>();
+        for (MultipartFile file : files) {
+            FileUploadRqstDto fileUploadRqstDto = new FileUploadRqstDto();
+            fileUploadRqstDto.setInputStream(file.getInputStream());
+            fileUploadRqstDto.setMimeType(file.getContentType());
+            fileUploadRqstDto.setExtension(FilenameUtils.getExtension(file.getOriginalFilename()).orElse(null));
 
-        FileRspnDto uploadedFile = temporary
-                ? storageService.uploadFileTemp(fileUploadRqstDto)
-                : storageService.uploadFile(fileUploadRqstDto);
+            FileRspnDto uploadedFile = storageService.uploadFileTemp(fileUploadRqstDto);
+            uploadedFiles.add(uploadedFile);
+        }
 
-        return ResponseEntity.ok(uploadedFile);
+        return ResponseEntity.ok(uploadedFiles);
+//
+//        FileUploadRqstDto fileUploadRqstDto = new FileUploadRqstDto();
+//        fileUploadRqstDto.setInputStream(file.getInputStream());
+//        fileUploadRqstDto.setFolder(folder);
+//        fileUploadRqstDto.setMimeType(file.getContentType());
+//        fileUploadRqstDto.setExtension(FilenameUtils.getExtension(file.getOriginalFilename()).orElse(null));
+//
+//        FileRspnDto uploadedFile = temporary
+//                ? storageService.uploadFileTemp(fileUploadRqstDto)
+//                : storageService.uploadFile(fileUploadRqstDto);
+//
+//        return ResponseEntity.ok(uploadedFile);
     }
 
     @GetMapping("/file/{fileId}")

@@ -11,7 +11,10 @@ import com.travelbuddy.persistence.domain.dto.travelplan.*;
 import com.travelbuddy.persistence.domain.entity.*;
 import com.travelbuddy.persistence.repository.*;
 import com.travelbuddy.site.user.SiteService;
+import com.travelbuddy.upload.cloud.StorageExecutorService;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +32,10 @@ public class TravelPlanServiceImpl implements TravelPlanService {
     private final RequestUtils requestUtils;
     private final TravelPlanUserRepository travelPlanUserRepository;
     private final SiteRepository siteRepository;
-    private final SiteApprovalRepository siteApprovalRepository;
     private final TravelPlanSiteRepository travelPlanSiteRepository;
     private final SiteService siteService;
+    private final StorageExecutorService storageExecutorService;
+    private final FileRepository fileRepository;
 
     @Override
     public int createTravelPlan(TravelPlanCreateRqstDto travelPlanCreateRqstDto) {
@@ -43,11 +47,19 @@ public class TravelPlanServiceImpl implements TravelPlanService {
             throw new UserInputException("Start time must be before end time");
         }
 
+        if (!StringUtils.contains(travelPlanCreateRqstDto.getCover().getUrl(), "image")) {
+            throw new UserInputException("Cover must be an image");
+        }
+
         TravelPlanEntity travelPlanEntity = TravelPlanEntity.builder()
                 .name(travelPlanCreateRqstDto.getName())
                 .description(travelPlanCreateRqstDto.getDescription())
                 .startTime(travelPlanCreateRqstDto.getStartTime())
                 .endTime(travelPlanCreateRqstDto.getEndTime())
+                .cover(FileEntity.builder()
+                        .id(travelPlanCreateRqstDto.getCover().getId())
+                        .url(travelPlanCreateRqstDto.getCover().getUrl())
+                        .build())
                 .build();
 
         List<UserEntity> userEntities = new ArrayList<>();
@@ -100,6 +112,26 @@ public class TravelPlanServiceImpl implements TravelPlanService {
     }
 
     @Override
+    public void changeCover(int travelPlanId, FileRspnDto uploadedFile) {
+        TravelPlanEntity travelPlanEntity = travelPlanRepository.findById(travelPlanId)
+                .orElseThrow(() -> new NotFoundException("Travel plan not found"));
+
+        FileEntity newCover = FileEntity.builder()
+                .id(uploadedFile.getId())
+                .url(uploadedFile.getUrl())
+                .build();
+
+        if (travelPlanEntity.getCover() != null) {
+            storageExecutorService.deleteFile(travelPlanEntity.getCover().getId());
+            fileRepository.deleteById(travelPlanEntity.getCover().getId());
+        }
+
+        travelPlanEntity.setCover(newCover);
+
+        travelPlanRepository.save(travelPlanEntity);
+    }
+
+    @Override
     public void addMemberToTravelPlan(int travelPlanId, int userId) {
         TravelPlanEntity travelPlanEntity = travelPlanRepository.findById(travelPlanId)
                 .orElseThrow(() -> new NotFoundException("Travel plan not found"));
@@ -127,10 +159,10 @@ public class TravelPlanServiceImpl implements TravelPlanService {
 
     @Override
     public void removeMemberFromTravelPlan(int travelPlanId, int userId) {
-        TravelPlanEntity travelPlanEntity = travelPlanRepository.findById(travelPlanId)
+        travelPlanRepository.findById(travelPlanId)
                 .orElseThrow(() -> new NotFoundException("Travel plan not found"));
 
-        UserEntity userEntity = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         int requestUserId = requestUtils.getUserIdCurrentRequest();
@@ -151,7 +183,7 @@ public class TravelPlanServiceImpl implements TravelPlanService {
 
     @Override
     public void changeMemberRole(int travelPlanId, ChgMemberRoleRqstDto chgMemberRoleRqstDto) {
-        TravelPlanEntity travelPlanEntity = travelPlanRepository.findById(travelPlanId)
+        travelPlanRepository.findById(travelPlanId)
                 .orElseThrow(() -> new NotFoundException("Travel plan not found"));
 
         userRepository.findById(chgMemberRoleRqstDto.getUserId())
@@ -274,7 +306,7 @@ public class TravelPlanServiceImpl implements TravelPlanService {
 
     @Override
     public void deleteTravelPlan(int travelPlanId) {
-        TravelPlanEntity travelPlanEntity = travelPlanRepository.findById(travelPlanId)
+        travelPlanRepository.findById(travelPlanId)
                 .orElseThrow(() -> new NotFoundException("Travel plan not found"));
 
         int requestUserId = requestUtils.getUserIdCurrentRequest();
@@ -295,6 +327,7 @@ public class TravelPlanServiceImpl implements TravelPlanService {
         travelPlanRspnDto.setDescription(travelPlanEntity.getDescription());
         travelPlanRspnDto.setStartTime(String.valueOf(travelPlanEntity.getStartTime()));
         travelPlanRspnDto.setEndTime(String.valueOf(travelPlanEntity.getEndTime()));
+        travelPlanRspnDto.setCoverUrl(travelPlanEntity.getCover().getUrl());
 
         List<TravelPlanSiteRspnDto> sites = new ArrayList<>();
         for (SiteEntity siteEntity : travelPlanEntity.getSiteEntities()) {
@@ -345,6 +378,7 @@ public class TravelPlanServiceImpl implements TravelPlanService {
                     travelPlanBasicRspnDto.setDescription(travelPlanEntity.getDescription());
                     travelPlanBasicRspnDto.setStartTime(String.valueOf(travelPlanEntity.getStartTime()));
                     travelPlanBasicRspnDto.setEndTime(String.valueOf(travelPlanEntity.getEndTime()));
+                    travelPlanBasicRspnDto.setCoverUrl(travelPlanEntity.getCover().getUrl());
 
                     return travelPlanBasicRspnDto;
                 })

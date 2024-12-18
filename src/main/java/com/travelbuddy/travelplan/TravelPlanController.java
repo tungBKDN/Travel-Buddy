@@ -1,11 +1,21 @@
 package com.travelbuddy.travelplan;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.travelbuddy.common.utils.FilenameUtils;
 import com.travelbuddy.persistence.domain.dto.travelplan.*;
+import com.travelbuddy.upload.cloud.StorageService;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
+import com.travelbuddy.upload.cloud.dto.FileUploadRqstDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -14,6 +24,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TravelPlanController {
     private final TravelPlanService travelPlanService;
+    private final StorageService storageService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping
     public ResponseEntity<Void> createTravelPlan(@RequestBody @Valid TravelPlanCreateRqstDto travelPlanCreateRqstDto) {
@@ -27,6 +39,34 @@ public class TravelPlanController {
         travelPlanService.updateTravelPlan(travelPlanId, travelPlanUpdateRqstDto);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{travelPlanId}/change-cover")
+    public ResponseEntity<Object> changeCover(@PathVariable int travelPlanId, @RequestParam("cover") MultipartFile cover) throws IOException {
+        if (ObjectUtils.isEmpty(cover)) {
+            throw new IllegalArgumentException("Cover  is required");
+        }
+
+        String mimeType = cover.getContentType();
+        if (StringUtils.isEmpty(mimeType) || !mimeType.startsWith("image")) {
+            throw new IllegalArgumentException("Avatar must be an image");
+        }
+
+        FileUploadRqstDto fileUploadRqstDto = FileUploadRqstDto.builder()
+                .inputStream(cover.getInputStream())
+                .folder("covers")
+                .mimeType(mimeType)
+                .extension(FilenameUtils.getExtension(cover.getOriginalFilename()).orElse(null))
+                .build();
+
+        FileRspnDto uploadedFile =  storageService.uploadFile(fileUploadRqstDto);
+
+        travelPlanService.changeCover(travelPlanId, uploadedFile);
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("coverUrl", uploadedFile.getUrl());
+
+        return ResponseEntity.ok(objectNode);
     }
 
     @PutMapping("/{travelPlanId}/add-member")

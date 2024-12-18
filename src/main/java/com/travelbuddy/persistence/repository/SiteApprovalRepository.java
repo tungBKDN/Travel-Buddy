@@ -17,7 +17,8 @@ public interface SiteApprovalRepository extends JpaRepository<SiteApprovalEntity
             "JOIN SiteVersionEntity sv ON sa.siteVersionId = sv.id " +
             "WHERE sa.status = 'APPROVED' " +
             "AND sv.siteId = :siteId " +
-            "ORDER BY sv.createdAt DESC")
+            "ORDER BY sv.createdAt DESC " +
+            "LIMIT 1")
     Optional<Integer> findLatestApprovedSiteVersionIdBySiteId(@Param("siteId") Integer siteId);
     Page<SiteApprovalEntity> findAllByStatus(ApprovalStatusEnum status, Pageable pageable);
 }

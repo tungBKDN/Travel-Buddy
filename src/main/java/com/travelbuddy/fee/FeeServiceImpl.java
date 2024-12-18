@@ -6,22 +6,26 @@ import com.travelbuddy.persistence.domain.entity.AspectsByTypeEntity;
 import com.travelbuddy.persistence.domain.entity.FeeEntity;
 import com.travelbuddy.persistence.repository.AspectsByTypeRepository;
 import com.travelbuddy.persistence.repository.FeeRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@AllArgsConstructor
-public class FeeServiceImp implements FeeService {
+@Transactional
+@RequiredArgsConstructor
+public class FeeServiceImpl implements FeeService {
     private final FeeRepository feeRepository;
     private final AspectsByTypeRepository aspectsByTypeRepository;
 
     @Override
     public void addFee(List<CreateFeeRqstDto> createFeeRqstDtos, Integer siteVersionId) {
-        List<FeeEntity> feeEntities = new ArrayList<FeeEntity>();
+        createFeeRqstDtos = Optional.ofNullable(createFeeRqstDtos).orElse(Collections.emptyList());
+        List<FeeEntity> feeEntities = new ArrayList<>();
         for (CreateFeeRqstDto createFeeRqstDto : createFeeRqstDtos) {
             FeeEntity feeEntity = new FeeEntity();
             feeEntity.setSiteVersionId(siteVersionId);
@@ -35,8 +39,8 @@ public class FeeServiceImp implements FeeService {
 
     @Override
     public List<FeeRspndDto> getFeeBySiteVersionId(Integer siteVersionId) {
-        List<FeeEntity> fees = feeRepository.findAllBySiteVersionId(siteVersionId).orElse(new ArrayList<FeeEntity>());
-        List<FeeRspndDto> feeRspndDtos = new ArrayList<FeeRspndDto>();
+        List<FeeEntity> fees = feeRepository.findAllBySiteVersionId(siteVersionId).orElse(new ArrayList<>());
+        List<FeeRspndDto> feeRspndDtos = new ArrayList<>();
         for (FeeEntity fee : fees) {
             AspectsByTypeEntity aspect = aspectsByTypeRepository.findById(fee.getAspectId()).orElse(null);
             FeeRspndDto feeRspndDto = new FeeRspndDto();

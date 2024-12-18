@@ -1,5 +1,6 @@
 package com.travelbuddy.sitereviews;
 
+import com.travelbuddy.common.constants.MediaTypeEnum;
 import com.travelbuddy.common.constants.ReactionTypeEnum;
 import com.travelbuddy.common.exception.errorresponse.DataAlreadyExistsException;
 import com.travelbuddy.common.exception.errorresponse.ForbiddenException;
@@ -10,6 +11,7 @@ import com.travelbuddy.common.utils.RequestUtils;
 import com.travelbuddy.mapper.SiteReviewMapper;
 import com.travelbuddy.persistence.domain.dto.site.SiteBasicInfoRspnDto;
 import com.travelbuddy.persistence.domain.dto.sitereview.*;
+import com.travelbuddy.persistence.domain.entity.FileEntity;
 import com.travelbuddy.persistence.domain.entity.ReviewMediaEntity;
 import com.travelbuddy.persistence.domain.entity.ReviewReactionEntity;
 import com.travelbuddy.persistence.domain.entity.SiteReviewEntity;
@@ -18,6 +20,7 @@ import com.travelbuddy.persistence.repository.ReviewReactionRepository;
 import com.travelbuddy.persistence.repository.SiteReviewRepository;
 import com.travelbuddy.site.user.SiteService;
 import com.travelbuddy.upload.cloud.StorageExecutorService;
+import com.travelbuddy.upload.cloud.dto.FileRspnDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,13 +51,12 @@ public class SiteReviewServiceImpl implements SiteReviewService {
     private final SiteService siteService;
 
     @Override
-    public void createSiteReview(SiteReviewCreateRqstDto siteReviewCreateRqstDto, List<ReviewMediaEntity> reviewMediaEntities) {
+    public void createSiteReview(SiteReviewCreateRqstDto siteReviewCreateRqstDto) {
         int userId = requestUtils.getUserIdCurrentRequest();
 
         boolean isReviewExists = siteReviewRepository.existsBySiteIdAndUserId(siteReviewCreateRqstDto.getSiteId(), userId);
-        if (isReviewExists) {
-            reviewMediaEntities.forEach(reviewMediaEntity -> storageExecutorService.deleteFile(reviewMediaEntity.getMedia().getId()));
 
+        if (isReviewExists) {
             throw new DataAlreadyExistsException("You have already reviewed this site");
         }
 
@@ -68,8 +70,16 @@ public class SiteReviewServiceImpl implements SiteReviewService {
 
         siteReviewEntity = siteReviewRepository.saveAndFlush(siteReviewEntity);
 
-        for (ReviewMediaEntity reviewMediaEntity : reviewMediaEntities) {
-            reviewMediaEntity.setReview(siteReviewEntity);
+        List<ReviewMediaEntity> reviewMediaEntities = new ArrayList<>();
+        for (FileRspnDto fileRspnDto : siteReviewCreateRqstDto.getMedias()) {
+            reviewMediaEntities.add(ReviewMediaEntity.builder()
+                            .media(FileEntity.builder()
+                                    .id(fileRspnDto.getId())
+                                    .url(fileRspnDto.getUrl())
+                                    .build())
+                            .mediaType(fileRspnDto.getUrl().contains("video") ? MediaTypeEnum.VIDEO.name() : MediaTypeEnum.IMAGE.name())
+                            .review(siteReviewEntity)
+                            .build());
         }
 
         reviewMediaRepository.saveAll(reviewMediaEntities);
@@ -88,7 +98,7 @@ public class SiteReviewServiceImpl implements SiteReviewService {
     }
 
     @Override
-    public void updateSiteReview(int siteReviewId, SiteReviewUpdateRqstDto siteReviewUpdateRqstDto, List<ReviewMediaEntity> reviewMediaEntities) {
+    public void updateSiteReview(int siteReviewId, SiteReviewUpdateRqstDto siteReviewUpdateRqstDto) {
         SiteReviewEntity siteReviewEntity = siteReviewRepository.findById((long) siteReviewId)
                 .orElseThrow(() -> new NotFoundException("Site review not found"));
 
@@ -109,7 +119,17 @@ public class SiteReviewServiceImpl implements SiteReviewService {
 
         storageExecutorService.deleteFiles(mediaIdsToDelete);
 
-        reviewMediaEntities.forEach(reviewMediaEntity -> reviewMediaEntity.setReview(siteReviewEntity));
+        List<ReviewMediaEntity> reviewMediaEntities = new ArrayList<>();
+        for (FileRspnDto fileRspnDto : siteReviewUpdateRqstDto.getNewMedias()) {
+            reviewMediaEntities.add(ReviewMediaEntity.builder()
+                    .media(FileEntity.builder()
+                            .id(fileRspnDto.getId())
+                            .url(fileRspnDto.getUrl())
+                            .build())
+                    .mediaType(fileRspnDto.getUrl().contains("video") ? MediaTypeEnum.VIDEO.name() : MediaTypeEnum.IMAGE.name())
+                    .review(siteReviewEntity)
+                    .build());
+        }
 
         siteReviewEntity.setComment(siteReviewUpdateRqstDto.getComment());
         siteReviewEntity.setGeneralRating(siteReviewUpdateRqstDto.getGeneralRating());
@@ -145,14 +165,6 @@ public class SiteReviewServiceImpl implements SiteReviewService {
                 .orElseThrow(() -> new NotFoundException("Site review not found"));
 
         return siteReviewMapper.siteReviewEntityToSiteReviewDetailRspnDto(siteReviewEntity);
-    }
-
-    @Override
-    public Integer getSiteReviewOwner(int reviewId) {
-        SiteReviewEntity siteReviewEntity = siteReviewRepository.findById((long) reviewId)
-                .orElseThrow(() -> new NotFoundException("Site review not found"));
-
-        return siteReviewEntity.getUserId();
     }
 
     @Override
