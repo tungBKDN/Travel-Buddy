@@ -12,7 +12,5 @@ import lombok.Setter;
 public class AdminLoginRspnDto {
     private String accessToken;
 
-    private String refreshToken;
-
     private AdminDetailRspnDto adminInfo;
 }
