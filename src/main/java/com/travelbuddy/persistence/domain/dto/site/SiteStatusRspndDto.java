@@ -17,6 +17,10 @@ public class SiteStatusRspndDto {
     private Integer siteId;
     private Integer siteVersionId;
     private String siteName;
+    private String address;
+    private String description;
+    private double lat;
+    private double lng;
     private String state; // PENDING, APPROVED, REJECTED
     private String createdAt;
     private String actionAppliedAt; // null if state is PENDING
@@ -29,6 +33,10 @@ public class SiteStatusRspndDto {
         this.siteId = sv.getSiteId();
         this.siteVersionId = sv.getId();
         this.siteName = sv.getSiteName();
+        this.address = sv.getResolvedAddress();
+        this.description = sv.getDescription();
+        this.lat = sv.getLat();
+        this.lng = sv.getLng();
         this.createdAt = sv.getCreatedAt().format(formatter); // 2024-09-01 09:21:13
         this.state = (sa.getStatus() == null) ? "PENDING" : sa.getStatus().name();
         this.actionAppliedAt = sa.getApprovedAt().toString(); // 2024-10-17 14:04:20.0

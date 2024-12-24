@@ -237,13 +237,6 @@ public class SiteVersionServiceImp implements SiteVersionService {
     @Override
     public PageDto<SiteStatusRspndDto> getSiteStatuses(int page, int userId) {
         Pageable pageable = PageRequest.of(page - 1, MY_SITE_LIMIT, Sort.by("createdAt"));
-        /*List<SiteVersionEntity> siteVersions = siteVersionRepository.findAllByOwnerId(userId);
-        List<SiteStatusRspndDto> siteStatuses = new ArrayList<>();
-        for (SiteVersionEntity siteVersion : siteVersions) {
-            SiteApprovalEntity siteApproval = siteApprovalRepository.findBySiteVersionId(siteVersion.getId());
-            SiteMediaEntity siteMedia = siteMediaRepository.findFirstBySiteIdAndMediaType(siteVersion.getSiteId(), "IMAGE");
-            siteStatuses.add(new SiteStatusRspndDto(siteVersion, siteApproval, siteMedia));
-        }*/
         Page<SiteVersionEntity> siteVersions = siteVersionRepository.findAllByOwnerId(userId, pageable);
         List<SiteStatusRspndDto> siteStatuses = siteVersions.stream()
                 .map(siteVersion -> {
