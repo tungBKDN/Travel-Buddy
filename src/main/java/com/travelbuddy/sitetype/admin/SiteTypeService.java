@@ -14,5 +14,6 @@ public interface SiteTypeService {
     PageDto<SiteTypeRspnDto> getAllSiteTypes(int page, int limit);
     PageDto<SiteTypeRspnDto> searchSiteTypes(String siteTypeSearch, int page, int limit);
     List<GroupedSiteServicesRspnDto> getAssociatedServiceGroups(Integer siteTypeId);
+    List<GroupedSiteServicesRspnDto> getAssociatedServiceGroups();
 }
 
