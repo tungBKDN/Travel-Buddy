@@ -39,7 +39,7 @@ public class SiteStatusRspndDto {
         this.lng = sv.getLng();
         this.createdAt = sv.getCreatedAt().format(formatter); // 2024-09-01 09:21:13
         this.state = (sa.getStatus() == null) ? "PENDING" : sa.getStatus().name();
-        this.actionAppliedAt = sa.getApprovedAt().toString(); // 2024-10-17 14:04:20.0
+        this.actionAppliedAt = (sa.getApprovedAt() != null) ? sa.getApprovedAt().toString().formatted(formatter) : null;
         this.pictureUrl = (sm != null ? sm.getMedia().getUrl() : null);
         this.typeOfModification = (sv.getParentVersionId() == null) ? "NEW" : "MODIFIED";
     }
