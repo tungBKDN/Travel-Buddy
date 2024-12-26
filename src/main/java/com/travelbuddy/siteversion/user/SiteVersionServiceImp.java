@@ -57,6 +57,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
                 .createdAt(LocalDateTime.now())
                 .typeId(siteCreateRqstDto.getTypeId())
                 .siteId(siteId)
+                .description(siteCreateRqstDto.getDescription())
                 .build();
 
         return siteVersionRepository.save(siteVersion).getId();
