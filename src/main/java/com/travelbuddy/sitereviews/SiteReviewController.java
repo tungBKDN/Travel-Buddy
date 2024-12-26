@@ -43,88 +43,28 @@ public class SiteReviewController {
     private final BehaviorLogRepository behaviorLogRepository;
 
     @PostMapping
-    public ResponseEntity<Void> postSiteReview(@RequestParam("review") String review,
-                                               @RequestParam(value = "images", required = false) Optional<List<MultipartFile>> images,
-                                               @RequestParam(value = "videos", required = false) Optional<List<MultipartFile>> videos) {
-        SiteReviewCreateRqstDto siteReviewCreateRqstDto;
-        try {
-            siteReviewCreateRqstDto = objectMapper.readValue(review, SiteReviewCreateRqstDto.class);
-            BehaviorLogEntity behaviorLog = BehaviorLogEntity.builder()
-                    .userId(requestUtils.getUserIdCurrentRequest())
-                    .timestamp(new Timestamp(System.currentTimeMillis()))
-                    .siteId(siteReviewCreateRqstDto.getSiteId())
-                    .behavior("POST_REVIEW")
-                    .build();
-            behaviorLogRepository.save(behaviorLog);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-        List<ReviewMediaEntity> reviewMedias = new ArrayList<>();
-
-        images.ifPresent(imageList -> {
-            for (MultipartFile image : imageList) {
-                try {
-                    FileUploadRqstDto fileUploadRqstDto = FileUploadRqstDto.builder()
-                            .inputStream(image.getInputStream())
-                            .folder("site-reviews")
-                            .mimeType(image.getContentType())
-                            .extension(FilenameUtils.getExtension(image.getOriginalFilename()).orElse(null))
-                            .build();
-
-                    FileRspnDto uploadedFile = storageService.uploadFile(fileUploadRqstDto);
-
-                    reviewMedias.add(ReviewMediaEntity.builder()
-                            .media(FileEntity.builder()
-                                    .id(uploadedFile.getId())
-                                    .url(uploadedFile.getUrl())
-                                    .build())
-                            .mediaType(MediaTypeEnum.IMAGE.name())
-                            .build());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        videos.ifPresent(videoList -> {
-            for (MultipartFile video : videoList) {
-                try {
-                    FileUploadRqstDto fileUploadRqstDto = FileUploadRqstDto.builder()
-                            .inputStream(video.getInputStream())
-                            .folder("site-reviews")
-                            .mimeType(video.getContentType())
-                            .extension(FilenameUtils.getExtension(video.getOriginalFilename()).orElse(null))
-                            .build();
-
-                FileRspnDto uploadedFile = storageService.uploadFile(fileUploadRqstDto);
-
-                reviewMedias.add(ReviewMediaEntity.builder()
-                        .media(FileEntity.builder()
-                                .id(uploadedFile.getId())
-                                .url(uploadedFile.getUrl())
-                                .build())
-                        .mediaType(MediaTypeEnum.VIDEO.name())
-                        .build());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
+    public ResponseEntity<Void> postSiteReview(@RequestBody @Valid SiteReviewCreateRqstDto siteReviewCreateRqstDto) {
         siteReviewService.createSiteReview(siteReviewCreateRqstDto);
+        BehaviorLogEntity behaviorLog = BehaviorLogEntity.builder()
+                .userId(requestUtils.getUserIdCurrentRequest())
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .siteId(siteReviewCreateRqstDto.getSiteId())
+                .behavior("POST_REVIEW")
+                .build();
+        behaviorLogRepository.save(behaviorLog);
         return ResponseEntity.created(URI.create("/api/site-reviews/" + siteReviewCreateRqstDto.getSiteId())).build();
     }
 
     @GetMapping("/{reviewId}")
     public ResponseEntity<Object> getSiteReview(@PathVariable int reviewId) {
         SiteReviewDetailRspnDto siteReview = siteReviewService.getSiteReviewById(reviewId);
+
         return ResponseEntity.ok(siteReview);
     }
 
     @PutMapping("/{reviewId}")
     public ResponseEntity<Void> updateSiteReview(@PathVariable int reviewId,
-                                                @RequestBody @Valid SiteReviewUpdateRqstDto siteReviewUpdateRqstDto) {
+                                                 @RequestBody @Valid  SiteReviewUpdateRqstDto siteReviewUpdateRqstDto) {
 
 
         siteReviewService.updateSiteReview(reviewId, siteReviewUpdateRqstDto);

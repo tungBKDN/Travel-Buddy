@@ -73,13 +73,13 @@ public class SiteReviewServiceImpl implements SiteReviewService {
         List<ReviewMediaEntity> reviewMediaEntities = new ArrayList<>();
         for (FileRspnDto fileRspnDto : siteReviewCreateRqstDto.getMedias()) {
             reviewMediaEntities.add(ReviewMediaEntity.builder()
-                            .media(FileEntity.builder()
-                                    .id(fileRspnDto.getId())
-                                    .url(fileRspnDto.getUrl())
-                                    .build())
-                            .mediaType(fileRspnDto.getUrl().contains("video") ? MediaTypeEnum.VIDEO.name() : MediaTypeEnum.IMAGE.name())
-                            .review(siteReviewEntity)
-                            .build());
+                    .media(FileEntity.builder()
+                            .id(fileRspnDto.getId())
+                            .url(fileRspnDto.getUrl())
+                            .build())
+                    .mediaType(fileRspnDto.getUrl().contains("video") ? MediaTypeEnum.VIDEO.name() : MediaTypeEnum.IMAGE.name())
+                    .review(siteReviewEntity)
+                    .build());
         }
 
         reviewMediaRepository.saveAll(reviewMediaEntities);
