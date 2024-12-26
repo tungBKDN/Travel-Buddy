@@ -1,7 +1,9 @@
 package com.travelbuddy.sitetype.user;
 
 import com.travelbuddy.aspectsbytype.admin.AspectsByTypeService;
+import com.travelbuddy.common.constants.PaginationLimitConstants;
 import com.travelbuddy.common.exception.errorresponse.NotFoundException;
+import com.travelbuddy.common.paging.PageDto;
 import com.travelbuddy.persistence.domain.dto.aspectsbytype.AspectsByTypeRepresentationRspndDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.GroupedSiteServicesRspnDto;
 import com.travelbuddy.persistence.domain.dto.siteservice.ServiceByTypeRspnDto;
@@ -22,7 +24,6 @@ import java.util.List;
 @RequestMapping("/api/site-types")
 public class SiteTypeController {
     private final SiteTypeService siteTypeService;
-    private final ServiceService serviceService;
     private final SiteTypeRepository siteTypeRepository;
     private final AspectsByTypeService aspectsByTypeService;
 
@@ -43,6 +44,22 @@ public class SiteTypeController {
     public ResponseEntity<Object> getAssociatedAspects(@PathVariable Integer siteTypeId) {
         List< AspectsByTypeRepresentationRspndDto> aspects = aspectsByTypeService.getAspectsByTypeId(siteTypeId);
         return ResponseEntity.ok(aspects);
+    }
+
+    @GetMapping
+    public ResponseEntity<Object> getSiteTypes(@RequestParam(name = "q", required = false, defaultValue = "") String siteTypeSearch,
+                                               @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                               @RequestParam(name = "limit", required = false) Integer limit) {
+
+        // Check for limit is set
+        if (limit == null) {
+            limit = PaginationLimitConstants.SITE_TYPE_LIMIT;
+        }
+        PageDto<SiteTypeRspnDto> siteTypesPage = siteTypeSearch.trim().isEmpty()
+                ? siteTypeService.getAllSiteTypes(page, limit)
+                : siteTypeService.searchSiteTypes(siteTypeSearch, page, limit);
+
+        return ResponseEntity.ok(siteTypesPage);
     }
 
 }

@@ -57,22 +57,6 @@ public class SiteTypeController {
         return ResponseEntity.created(URI.create("/admin/api/siteTypes/" + siteTypeId)).build();
     }
 
-    @GetMapping
-    public ResponseEntity<Object> getSiteTypes(@RequestParam(name = "q", required = false, defaultValue = "") String siteTypeSearch,
-                                               @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                               @RequestParam(name = "limit", required = false) Integer limit) {
-
-        // Check for limit is set
-        if (limit == null) {
-            limit = PaginationLimitConstants.SITE_TYPE_LIMIT;
-        }
-        PageDto<SiteTypeRspnDto> siteTypesPage = siteTypeSearch.trim().isEmpty()
-                ? siteTypeService.getAllSiteTypes(page, limit)
-                : siteTypeService.searchSiteTypes(siteTypeSearch, page, limit);
-
-        return ResponseEntity.ok(siteTypesPage);
-    }
-
     @PreAuthorize("hasAuthority('MANAGE_SITE_TYPES')")
     @PutMapping("/{siteTypeId}")
     public ResponseEntity<Object> updateSiteType(@PathVariable int siteTypeId, @RequestBody @Valid SiteTypeCreateRqstDto siteTypeCreateRqstDto) {
