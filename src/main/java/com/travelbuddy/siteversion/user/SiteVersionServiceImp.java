@@ -73,11 +73,11 @@ public class SiteVersionServiceImp implements SiteVersionService {
 
         // 1'. Get phone numbers
         List<String> phoneNumbers = phoneNumberRepository.findAllBySiteVersionId(siteVersionId)
-                .orElseThrow(() -> new NotFoundException("Phone numbers not found"))
+                .orElse(new ArrayList<>())
                 .stream()
                 .map(PhoneNumberEntity::getPhoneNumber)
                 .toList();        // 1''. Get opening times
-        List<OpeningTimeEntity> openingTimes = openingTimeRepository.findAllBySiteVersionId(siteVersionId).orElseThrow(() -> new NotFoundException("Opening times not found"));
+        List<OpeningTimeEntity> openingTimes = openingTimeRepository.findAllBySiteVersionId(siteVersionId).orElse(new ArrayList<>());
         // 2. Get user basic information
         Integer userId = siteRepository.findById(siteVersionInfos.getSiteId())
                 .orElseThrow(() -> new NotFoundException("Site not found"))
@@ -171,6 +171,7 @@ public class SiteVersionServiceImp implements SiteVersionService {
                 .typeId(siteUpdateRqstDto.getNewTypeId())
                 .siteId(siteUpdateRqstDto.getSiteId())
                 .description(siteUpdateRqstDto.getNewDescription())
+                .parentVersionId(siteApprovalRepository.findLatestApprovedSiteVersionIdBySiteId(siteUpdateRqstDto.getSiteId()).orElse(null))
                 .build();
         return siteVersionRepository.save(siteVersion).getId();
     }

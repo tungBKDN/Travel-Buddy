@@ -94,7 +94,7 @@ public class ServiceServiceImp implements ServiceService {
             // Set values
             groupedSiteServicesRspnDtoItem.setServiceGroup(serviceGroupByType.getServiceGroupEntity());
             groupedSiteServicesRspnDtoItem.setServices(servicesInGroupList);
-            groupedSiteServices.add(groupedSiteServicesRspnDtoItem);
+            if (!servicesInGroupList.isEmpty()) groupedSiteServices.add(groupedSiteServicesRspnDtoItem);
         }
         return groupedSiteServices;
     }
