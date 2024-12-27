@@ -56,10 +56,10 @@ public class TravelPlanServiceImpl implements TravelPlanService {
                 .description(travelPlanCreateRqstDto.getDescription())
                 .startTime(travelPlanCreateRqstDto.getStartTime())
                 .endTime(travelPlanCreateRqstDto.getEndTime())
-                .cover(FileEntity.builder()
+                .cover(travelPlanCreateRqstDto.getCover() != null ? FileEntity.builder()
                         .id(travelPlanCreateRqstDto.getCover().getId())
                         .url(travelPlanCreateRqstDto.getCover().getUrl())
-                        .build())
+                        .build() : null)
                 .build();
 
         List<UserEntity> userEntities = new ArrayList<>();
@@ -67,7 +67,7 @@ public class TravelPlanServiceImpl implements TravelPlanService {
 
         travelPlanEntity.setUserEntities(userEntities);
 
-        int travelPlanId =  travelPlanRepository.save(travelPlanEntity).getId();
+        int travelPlanId = travelPlanRepository.save(travelPlanEntity).getId();
 
         TravelPlanUserEntity travelPlanUserEntity = travelPlanUserRepository.findByTravelPlanIdAndUserId(travelPlanId, requestUserId)
                 .orElseThrow(() -> new NotFoundException("Travel plan or User not found"));
