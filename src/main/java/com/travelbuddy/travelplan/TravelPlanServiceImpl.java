@@ -47,7 +47,7 @@ public class TravelPlanServiceImpl implements TravelPlanService {
             throw new UserInputException("Start time must be before end time");
         }
 
-        if (!StringUtils.contains(travelPlanCreateRqstDto.getCover().getUrl(), "image")) {
+        if (travelPlanCreateRqstDto.getCover() != null &&  !StringUtils.contains(travelPlanCreateRqstDto.getCover().getUrl(), "image")) {
             throw new UserInputException("Cover must be an image");
         }
 
@@ -56,11 +56,15 @@ public class TravelPlanServiceImpl implements TravelPlanService {
                 .description(travelPlanCreateRqstDto.getDescription())
                 .startTime(travelPlanCreateRqstDto.getStartTime())
                 .endTime(travelPlanCreateRqstDto.getEndTime())
-                .cover(travelPlanCreateRqstDto.getCover() != null ? FileEntity.builder()
-                        .id(travelPlanCreateRqstDto.getCover().getId())
-                        .url(travelPlanCreateRqstDto.getCover().getUrl())
-                        .build() : null)
                 .build();
+
+        if (travelPlanCreateRqstDto.getCover() != null && travelPlanCreateRqstDto.getCover().getId() != null && travelPlanCreateRqstDto.getCover().getUrl() != null) {
+            FileEntity cover = FileEntity.builder()
+                    .id(travelPlanCreateRqstDto.getCover().getId())
+                    .url(travelPlanCreateRqstDto.getCover().getUrl())
+                    .build();
+            travelPlanEntity.setCover(cover);
+        }
 
         List<UserEntity> userEntities = new ArrayList<>();
         userEntities.add(userEntity);
